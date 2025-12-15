@@ -29,7 +29,7 @@ These quizzes are for:
 
 Access the quizzes directly through GitHub Pages:
 
-**https://ugl13rth4nu.github.io/PMP-Certification-Quizzes/**
+[https://ugl13rth4nu.github.io/PMP-Certification-Quizzes/](https://ugl13rth4nu.github.io/PMP-Certification-Quizzes/)
 
 Click on any quiz from the landing page to begin. No login, installation, or download required.
 
