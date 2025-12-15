@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PMP Mindset Trainer</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<style>
+:root{
+  --accent:#2874A6;
+  --bg:#f6f7fb;--panel:#ffffff;--border:#dbe2ee;--text:#0a1522;--muted:#556273;--chip:#eef3f8;--dash:#cfd9e3;
+  --good:#155724;--goodbg:#d4edda;--bad:#7a1d1d;--badbg:#f8d7da
+}
+.dark{--bg:#0c1015;--panel:#121a23;--border:#223042;--text:#e8edf3;--muted:#9ab0c6;--chip:#172233;--dash:#2a374b;--good:#69db7c;--goodbg:#0f1a12;--bad:#ff8787;--badbg:#1a0f10}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;color:var(--text);background:var(--bg)}
+header{display:flex;gap:12px;align-items:center;padding:14px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:clamp(1.08rem,2.6vw,1.45rem);color:var(--accent)}
+main{max-width:1200px;margin:0 auto;padding:16px;display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:980px){main{grid-template-columns:1fr 420px}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.card h2{margin:0;padding:12px 14px;border-bottom:1px solid var(--border);font-size:1.02rem}
+.card .content{padding:12px 14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+select,button,input{background:#fff;border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px}
+.dark select,.dark button,.dark input{background:#0f141b;border-color:#263244;color:#e9eef3}
+button{cursor:pointer;font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:var(--chip);border:1px solid var(--border);font-size:.86rem}
+.muted{color:var(--muted);opacity:.95}
+.hint{background:var(--chip);border-left:3px solid var(--accent);padding:12px;border-radius:10px;margin-top:8px}
+.good{color:var(--good);background:var(--goodbg);padding:8px 10px;border-radius:10px;border:1px solid #b7dfc5}
+.bad{color:var(--bad);background:var(--badbg);padding:8px 10px;border-radius:10px;border:1px solid #f1b0b7}
+.kbd{border:1px solid var(--border);background:var(--chip);border-radius:6px;padding:1px 6px;font-weight:700}
+.table{width:100%;border-collapse:separate;border-spacing:0 8px}.table td{background:var(--panel);border:1px solid var(--border);padding:8px;border-radius:10px;vertical-align:top}
+small{font-size:.86rem}
+hr{border:none;border-top:1px solid var(--border);margin:12px 0}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--chip);border:1px solid var(--border);padding:2px 6px;border-radius:6px}
+.drags,.drops{display:grid;gap:10px}
+.drags{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.drag{padding:10px;border:1px dashed var(--dash);border-radius:10px;background:#fff;cursor:grab;text-align:center}
+.dark .drag{background:#0f141b}
+.drop{min-height:84px;border:1px dashed var(--dash);border-radius:10px;background:#fff;padding:8px;display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px}
+.dark .drop{background:#0f141b}
+.tag{font-size:.86rem;background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:6px 10px;cursor:grab}
+.stack{display:grid;grid-template-columns:1fr;gap:10px}
+.seq-step{padding:8px;border:1px dashed var(--dash);border-radius:10px;background:#fff}
+.dark .seq-step{background:#0f141b}
+.bin{min-height:110px}
+.counter{margin-left:auto;color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>PMP Mindset Trainer</h1>
+  <div style="flex:1"></div>
+  <label class="pill"><input type="checkbox" id="darkToggle"> Dark mode</label>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Practice</h2>
+    <div class="content">
+      <div class="row">
+        <label class="muted">Mode</label>
+        <select id="mode">
+          <option value="mcq">MCQ: Situational judgment</option>
+          <option value="drag_match">Drag: Match rule ↔ explanation</option>
+          <option value="sort_bins">Sort: General vs Agile vs Quick</option>
+          <option value="sequence">Sequence: Handle change (Predictive vs Agile)</option>
+        </select>
+        <button id="start">Start / Reset</button>
+        <span id="batchCounter" class="counter"></span>
+      </div>
+      <div id="work"></div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <h2>Mindset Reference</h2>
+    <div class="content">
+      <div class="hint">
+        <b>General PMP Mindset</b>
+        <ul id="genList"></ul>
+      </div>
+      <div class="hint" style="margin-top:10px">
+        <b>Agile Mindset</b>
+        <ul id="agileList"></ul>
+      </div>
+      <div class="hint" style="margin-top:10px">
+        <b>Quick PMP Mindset Reminders</b>
+        <ul id="quickList"></ul>
+      </div>
+      <p class="muted">Shortcuts: <span class="kbd">R</span> reshuffle, <span class="kbd">Enter</span> check/next.</p>
+    </div>
+  </aside>
+</main>
+
+<script>
+/* ===== Dataset from user's "PMP Mindset Reference Sheet" (paraphrased for training) ===== */
+const GENERAL = [
+  {key:"ASSESS_FIRST", label:"Always review/assess/understand before acting", desc:"Pause to analyze the situation and context before taking action."},
+  {key:"OWNERSHIP", label:"Don’t do nothing — take ownership", desc:"Be proactive; take a constructive first step after assessing."},
+  {key:"DONT_DELEGATE_PM", label:"Don’t delegate PM responsibilities to HR/PMO/functional managers", desc:"As PM, keep core PM duties; collaborate but don’t offload accountability."},
+  {key:"DONT_ESCALATE_FIRST", label:"Don’t escalate first", desc:"Attempt to solve at your level; escalate only if needed or per governance."},
+  {key:"NO_FIRE_DISCIPLINE", label:"Don’t fire/discipline people directly", desc:"Address performance privately; follow HR processes and manager-of-record lines."},
+  {key:"NO_IMMEDIATE_SCOPE_APPROVAL", label:"Don’t approve scope changes immediately", desc:"Evaluate impact; follow change control; seek approvals per governance."},
+  {key:"DONT_REJECT_IMMEDIATELY", label:"Don’t reject requests immediately", desc:"Assess value and impact first; then decide via the right process."},
+  {key:"PRIVATE_ISSUES", label:"Handle performance issues privately and respectfully", desc:"Address 1:1; protect dignity; coach first."},
+  {key:"RISK_VS_ISSUE", label:"Risk vs Issue", desc:"May/might happen → risk → risk register; already happened → issue → issue log."},
+  {key:"QUESTION_CLARITY", label:"Question wording: next/first vs should have done", desc:"Future-looking vs retrospective alters the correct action."},
+  {key:"PREDICTIVE_CHANGE", label:"Predictive change control (CCB)", desc:"Every change goes through evaluation and CCB approval before implementation."},
+];
+
+const AGILE = [
+  {key:"PO_OWNS_BACKLOG", label:"Product Owner owns and prioritizes the backlog", desc:"The PM does not change scope; PO handles prioritization."},
+  {key:"NO_FORMAL_CCB", label:"No formal CCB in Agile", desc:"Changes are handled via backlog refinement and re-prioritization."},
+  {key:"SERVANT_PM", label:"PM acts with servant leadership", desc:"Facilitate, remove blockers, empower the team."},
+  {key:"SPRINT_REVIEW", label:"Sprint Review", desc:"Demonstrate completed work to stakeholders for feedback."},
+  {key:"RETRO", label:"Sprint Retrospective", desc:"Inspect and adapt process; continuous improvement."},
+  {key:"PB_VS_SB", label:"Product Backlog vs Sprint Backlog", desc:"PB = all potential work; SB = items selected for the iteration."},
+  {key:"NO_WBS", label:"No WBS — use backlog decomposition", desc:"Work is refined into epics/features/stories not a WBS tree."},
+  {key:"MVP_FIRST", label:"When unclear, build MVP/demo first", desc:"Reduce uncertainty via early increments and feedback."},
+  {key:"TEAM_DECIDES", label:"Don’t decide alone; decisions belong to the team", desc:"Facilitate consensus; respect team autonomy."},
+];
+
+const QUICK = [
+  {key:"PROACTIVE", label:"Be proactive, not reactive", desc:"Anticipate and act early rather than responding late."},
+  {key:"ANALYZE_COLLAB", label:"Lead with analysis and collaboration", desc:"Think first, then engage stakeholders and team."},
+  {key:"PROTECT_CONSTRAINTS", label:"Protect scope, schedule, and quality via formal processes", desc:"Use governance to safeguard outcomes."},
+  {key:"TRANSPARENCY", label:"Uphold transparency, communication, and team empowerment", desc:"Foster openness and enable people to do their best work."},
+  {key:"ALIGN_VALUE", label:"Align actions with value delivery and stakeholder satisfaction", desc:"Focus decisions on benefits and customer outcomes."},
+];
+
+// Build reference lists
+function buildRef(){
+  const ul = (id, arr) => {
+    const u = document.getElementById(id); u.innerHTML="";
+    arr.forEach(x=>{
+      const li = document.createElement('li');
+      li.innerHTML = `<b>${x.label}</b> — <small>${x.desc}</small>`;
+      u.appendChild(li);
+    });
+  };
+  ul('genList', GENERAL);
+  ul('agileList', AGILE);
+  ul('quickList', QUICK);
+}
+
+// Helpers
+const byId = id => document.getElementById(id);
+const shuffle = a => a.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const isTyping = el => { if(!el) return false; const t=(el.tagName||'').toLowerCase(); return el.isContentEditable||t==='input'||t==='textarea'||t==='select'; };
+
+// ====== Global batching state ======
+let DM_POOL = []; let DM_IDX = 0; const DM_BATCH = 8;
+let SB_POOL = []; let SB_IDX = 0; const SB_BATCH = 12;
+
+function resetPools(){
+  DM_POOL = shuffle([...GENERAL, ...AGILE, ...QUICK]);
+  DM_IDX = 0;
+  SB_POOL = shuffle([...GENERAL, ...AGILE, ...QUICK]);
+  SB_IDX = 0;
+}
+
+// MCQ situational
+const SCENARIOS = [
+  // General
+  {text:"A stakeholder emails a scope change and urges immediate approval to avoid 'blocking progress.' What should you do next?", correct:"NO_IMMEDIATE_SCOPE_APPROVAL",
+   explain:"Assess impact first and follow change control; in predictive, route through CCB."},
+  {text:"A team conflict arises. Your first move is to forward the thread to the sponsor. Is that PMI-aligned?", correct:"DONT_ESCALATE_FIRST",
+   explain:"Try to resolve at your level before escalating."},
+  {text:"Testing keeps slipping due to understaffing. You consider reassigning a tester’s duties and writing a warning letter yourself.", correct:"NO_FIRE_DISCIPLINE",
+   explain:"You don’t discipline/fire directly; handle privately and involve proper HR channels."},
+  {text:"An incident already disrupted production. Where do you record and manage it?", correct:"RISK_VS_ISSUE",
+   explain:"It already happened → issue log (not the risk register)."},
+  {text:"A question asks, 'What should have been done?' How does that affect your answer?", correct:"QUESTION_CLARITY",
+   explain:"It’s retrospective; pick a step that should have been taken earlier in the process."},
+  {text:"You receive a vague complaint about schedule. What’s your first action?", correct:"ASSESS_FIRST",
+   explain:"Pause and analyze to understand the situation before acting."},
+  // Agile
+  {text:"A stakeholder requests a new feature mid-sprint. Who owns prioritization and how is it handled?", correct:"PO_OWNS_BACKLOG",
+   explain:"PO owns prioritization; changes route via backlog refinement/prioritization, not a CCB."},
+  {text:"You’re tempted to create a formal CCB for your Scrum team to 'control scope.' Good idea?", correct:"NO_FORMAL_CCB",
+   explain:"Agile treats change via backlog, not a formal CCB."},
+  {text:"Velocity is dipping. You convene a session to examine process and agree adjustments.", correct:"RETRO",
+   explain:"That’s a Sprint Retrospective: inspect-and-adapt the way of working."},
+  {text:"Requirements are unclear. You propose a small slice to demo value quickly.", correct:"MVP_FIRST",
+   explain:"Build an MVP/demo first to reduce uncertainty and gather feedback."},
+  {text:"The team asks you to make a final technical decision for them to speed things up.", correct:"TEAM_DECIDES",
+   explain:"Facilitate; decisions belong to the team as much as possible."},
+  // Quick
+  {text:"Two defensible options exist. You lean toward the one that promotes openness and team autonomy.", correct:"TRANSPARENCY",
+   explain:"Favor transparency and empowerment when choices are comparable."},
+  {text:"A vendor discount opportunity could accelerate benefits if approved quickly.", correct:"ALIGN_VALUE",
+   explain:"Choose actions that maximize value and stakeholder outcomes while respecting governance."},
+  {text:"A threat might materialize next quarter. You act early to reduce exposure.", correct:"PROACTIVE",
+   explain:"Be proactive, not reactive."},
+  {text:"You weigh options, then call a brief huddle to align with stakeholders before proceeding.", correct:"ANALYZE_COLLAB",
+   explain:"Lead with analysis and collaboration."},
+  {text:"A senior manager pressures you to skip testing to hit the date.", correct:"PROTECT_CONSTRAINTS",
+   explain:"Protect quality/scope/schedule via formal processes; don’t cut corners."},
+];
+
+function mcq(){
+  const w = byId('work'); const s = pick(SCENARIOS);
+  const all = [...GENERAL, ...AGILE, ...QUICK];
+  const correct = all.find(x=>x.key===s.correct);
+  let options = shuffle(all).slice(0,3).map(x=>x.label);
+  if(!options.includes(correct.label)) options[0]=correct.label;
+  options = shuffle(options);
+  byId('batchCounter').textContent = "";
+  w.innerHTML = `<div class="hint">${s.text}</div>
+  <div class="row" style="margin-top:10px">${options.map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join('')}</div>
+  <div id="fb"></div><div class="row"><button id="enterAction">Next</button></div>`;
+  w.querySelectorAll('.opt').forEach(b=>b.onclick=e=>{
+    const ok = e.currentTarget.dataset.v===correct.label;
+    byId('fb').innerHTML = ok ? `<div class="good">✓ Correct</div>` : `<div class="bad">Best PMI-aligned choice: <b>${correct.label}</b><br><small>${s.explain}</small></div>`;
+  });
+  byId('enterAction').onclick=()=>mcq();
+}
+
+// ===== Drag: match rule ↔ explanation (with batching) =====
+function dragMatch(init=false){
+  const total = (GENERAL.length + AGILE.length + QUICK.length);
+  if(init || DM_POOL.length===0){ DM_POOL = shuffle([...GENERAL, ...AGILE, ...QUICK]); DM_IDX = 0; }
+  const end = Math.min(DM_IDX + DM_BATCH, DM_POOL.length);
+  let batch = DM_POOL.slice(DM_IDX, end);
+  if(batch.length===0){ // reset cycle
+    DM_POOL = shuffle([...GENERAL, ...AGILE, ...QUICK]); DM_IDX = 0;
+    batch = DM_POOL.slice(0, Math.min(DM_BATCH, DM_POOL.length));
+  }
+  const batchNum = Math.floor(DM_IDX/DM_BATCH)+1;
+  const batchTotal = Math.ceil(DM_POOL.length/DM_BATCH);
+  byId('batchCounter').textContent = `Batch ${batchNum}/${batchTotal} (${batch.length} items)`;
+
+  const w = byId('work');
+  w.innerHTML = `<p class="muted">Drag each <b>rule label</b> onto its correct <b>explanation</b>. Click a placed chip to send it back.</p>
+  <div class="drags">${batch.map(p=>`<div class="drag" draggable="true" data-key="${p.key}">${p.label}</div>`).join('')}</div>
+  <div class="drops" style="margin-top:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+    ${batch.map(p=>`<div class="drop" data-key="${p.key}"><small>${p.desc}</small></div>`).join('')}
+  </div>
+  <div class="row" style="margin-top:12px">
+    <button id="check">Check</button>
+    <button id="clearMarks">Clear</button>
+    <button id="shuffleBatch">Shuffle batch</button>
+    <button id="nextBatch">Next batch</button>
+    <button id="restartSet">Restart set</button>
+  </div>
+  <div id="fb"></div>`;
+  hookDnD(w,false);
+
+  byId('shuffleBatch').onclick=()=>{
+    // reshuffle current batch only
+    const current = DM_POOL.slice(DM_IDX, end);
+    const shuffled = shuffle(current);
+    DM_POOL.splice(DM_IDX, current.length, ...shuffled);
+    dragMatch(false);
+  };
+  byId('nextBatch').onclick=()=>{ DM_IDX = end; dragMatch(false); };
+  byId('restartSet').onclick=()=>{ DM_POOL = shuffle([...GENERAL, ...AGILE, ...QUICK]); DM_IDX = 0; dragMatch(false); };
+}
+
+// ===== Sort: General vs Agile vs Quick (with batching) =====
+function sortBins(init=false){
+  if(init || SB_POOL.length===0){ SB_POOL = shuffle([...GENERAL, ...AGILE, ...QUICK]); SB_IDX = 0; }
+  const end = Math.min(SB_IDX + SB_BATCH, SB_POOL.length);
+  let batch = SB_POOL.slice(SB_IDX, end);
+  if(batch.length===0){
+    SB_POOL = shuffle([...GENERAL, ...AGILE, ...QUICK]); SB_IDX = 0;
+    batch = SB_POOL.slice(0, Math.min(SB_BATCH, SB_POOL.length));
+  }
+  const batchNum = Math.floor(SB_IDX/SB_BATCH)+1;
+  const batchTotal = Math.ceil(SB_POOL.length/SB_BATCH);
+  byId('batchCounter').textContent = `Batch ${batchNum}/${batchTotal} (${batch.length} items)`;
+
+  const w = byId('work');
+  w.innerHTML = `<p class="muted">Drag each item into the correct bin: <b>General</b>, <b>Agile</b>, or <b>Quick</b>. Click a chip to return it to the bank.</p>
+  <div class="drags">${batch.map(p=>`<div class="drag" draggable="true" data-expect="${catOf(p.key)}">${p.label}</div>`).join('')}</div>
+  <div class="drops" style="margin-top:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+    <div class="drop bin" data-k="GENERAL"><b>General</b></div>
+    <div class="drop bin" data-k="AGILE"><b>Agile</b></div>
+    <div class="drop bin" data-k="QUICK"><b>Quick</b></div>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <button id="check">Check</button>
+    <button id="clearMarks">Clear</button>
+    <button id="shuffleBatch">Shuffle batch</button>
+    <button id="nextBatch">Next batch</button>
+    <button id="restartSet">Restart set</button>
+  </div>
+  <div id="fb"></div>`;
+  hookDnD(w,true);
+  byId('shuffleBatch').onclick=()=>{
+    const current = SB_POOL.slice(SB_IDX, end);
+    const shuffled = shuffle(current);
+    SB_POOL.splice(SB_IDX, current.length, ...shuffled);
+    sortBins(false);
+  };
+  byId('nextBatch').onclick=()=>{ SB_IDX = end; sortBins(false); };
+  byId('restartSet').onclick=()=>{ SB_POOL = shuffle([...GENERAL, ...AGILE, ...QUICK]); SB_IDX = 0; sortBins(false); };
+}
+
+function catOf(key){
+  if(GENERAL.find(x=>x.key===key)) return "GENERAL";
+  if(AGILE.find(x=>x.key===key)) return "AGILE";
+  return "QUICK";
+}
+
+// Sequence: change handling (Predictive vs Agile)
+const PREDICTIVE_SEQ = [
+  "Assess the change request and gather details",
+  "Analyze impact on scope/schedule/cost/quality/risk",
+  "Submit change for CCB consideration per governance",
+  "Await decision; communicate with stakeholders",
+  "If approved: implement change and update baselines/artifacts"
+];
+const AGILE_SEQ = [
+  "Assess the new request/feedback with the team",
+  "Product Owner refines and prioritizes in the Product Backlog",
+  "Consider for selection during Sprint Planning (not mid-sprint)",
+  "Deliver increment and get feedback in Sprint Review",
+  "Inspect-and-adapt in Retrospective as needed"
+];
+
+function sequence(){
+  byId('batchCounter').textContent = "";
+  const w = byId('work');
+  const pred = shuffle(PREDICTIVE_SEQ.map((t,i)=>({t, i})));
+  const ag = shuffle(AGILE_SEQ.map((t,i)=>({t, i})));
+  w.innerHTML = `<p class="muted">Put the steps in a sensible PMI-aligned order.</p>
+  <div class="row"><span class="pill">Predictive (with CCB)</span></div>
+  <div class="drags" id="predBank">${pred.map(s=>`<div class="seq-step" draggable="true" data-idx="${s.i}" data-kind="P">${s.t}</div>`).join('')}</div>
+  <div class="drops"><div class="drop" id="predTarget" style="min-height:140px"></div></div>
+  <hr>
+  <div class="row"><span class="pill">Agile (backlog-driven)</span></div>
+  <div class="drags" id="agBank">${ag.map(s=>`<div class="seq-step" draggable="true" data-idx="${s.i}" data-kind="A">${s.t}</div>`).join('')}</div>
+  <div class="drops"><div class="drop" id="agTarget" style="min-height:140px"></div></div>
+  <div class="row" style="margin-top:12px"><button id="check">Check</button><button id="clearMarks">Clear</button><button id="again">Shuffle</button></div>
+  <div id="fb"></div>`;
+  hookSequence(w);
+  byId('again').onclick=()=>sequence();
+}
+
+function hookSequence(scope){
+  const banks = scope.querySelectorAll('.drags');
+  const drops = scope.querySelectorAll('.drop');
+  const makeDrag = el => {
+    el.addEventListener('dragstart',e=>{
+      const payload={idx:el.dataset.idx, kind:el.dataset.kind, text:el.textContent};
+      e.dataTransfer.setData('text/plain', JSON.stringify(payload));
+      el.dataset.__dragging='1';
+    });
+    el.addEventListener('dragend',()=>{ delete el.dataset.__dragging; });
+    el.addEventListener('click',()=>{
+      // Return to its bank
+      const bank = el.dataset.kind==='P' ? byId('predBank') : byId('agBank');
+      bank.appendChild(el);
+      el.style.background=''; el.style.borderColor='';
+    });
+  };
+  scope.querySelectorAll('.seq-step').forEach(makeDrag);
+  drops.forEach(d=>{
+    d.addEventListener('dragover',e=>e.preventDefault());
+    d.addEventListener('drop',e=>{
+      e.preventDefault();
+      const data = JSON.parse(e.dataTransfer.getData('text/plain')||'{}');
+      if((d.id==='predTarget'&&data.kind!=='P')||(d.id==='agTarget'&&data.kind!=='A')) return;
+      const moving = scope.querySelector(`.seq-step[data-__dragging="1"]`);
+      if(moving){ d.appendChild(moving); moving.style.background=''; moving.style.borderColor=''; }
+    });
+  });
+  const check = byId('check');
+  if(check) check.onclick=()=>{
+    let ok=0,total=0;
+    const evalTarget = (targetId, seq) => {
+      const target = byId(targetId);
+      const steps = Array.from(target.querySelectorAll('.seq-step'));
+      total += steps.length;
+      steps.forEach((el, idx)=>{
+        const isOk = parseInt(el.dataset.idx,10)===idx;
+        el.style.borderColor = isOk ? '#b7dfc5' : '#f1b0b7';
+        el.style.background = isOk ? '#d4edda' : '#f8d7da';
+        if(isOk) ok++;
+      });
+    };
+    evalTarget('predTarget', PREDICTIVE_SEQ);
+    evalTarget('agTarget', AGILE_SEQ);
+    byId('fb').innerHTML = (total>0 && ok===total) ? `<div class="good">✓ Perfect order!</div>` : `<div class="bad">${ok}/${total} in correct positions.</div>`;
+  };
+  const clearBtn = byId('clearMarks');
+  if(clearBtn) clearBtn.onclick=()=>{
+    scope.querySelectorAll('.seq-step').forEach(el=>{ el.style.background=''; el.style.borderColor=''; });
+    const fb = byId('fb'); if(fb) fb.innerHTML='';
+  };
+}
+
+// Shared DnD for match/sort
+function hookDnD(scope,useExpect){
+  const bank = scope.querySelector('.drags');
+  const mkChip = (data,text,expectKey=null)=>{
+    const chip=document.createElement('div'); chip.className='tag'; chip.textContent=text;
+    if(useExpect){ chip.dataset.expect = expectKey; }
+    else { chip.dataset.key = data.key; }
+    chip.setAttribute('draggable','true');
+    chip.addEventListener('dragstart',e=>{ chip.dataset.__dragging='1'; const payload = useExpect ? {expect: chip.dataset.expect, text: chip.textContent} : {key: chip.dataset.key, text: chip.textContent}; e.dataTransfer.setData('text/plain', JSON.stringify(payload)); });
+    chip.addEventListener('dragend',()=>{ delete chip.dataset.__dragging; });
+    chip.addEventListener('click',()=>{ chip.style.background=''; chip.style.borderColor=''; bank.appendChild(chip); });
+    return chip;
+  };
+  scope.querySelectorAll('.drag').forEach(el=>{
+    el.addEventListener('dragstart',e=>{
+      const payload = useExpect ? {expect: el.dataset.expect, text: el.textContent} : {key: el.dataset.key, text: el.textContent};
+      e.dataTransfer.setData('text/plain', JSON.stringify(payload));
+      el.dataset.__dragging='1';
+    });
+    el.addEventListener('dragend',()=>{ delete el.dataset.__dragging; });
+  });
+  scope.querySelectorAll('.drop').forEach(el=>{
+    el.addEventListener('dragover',e=>e.preventDefault());
+    el.addEventListener('drop',e=>{
+      e.preventDefault();
+      const d = JSON.parse(e.dataTransfer.getData('text/plain')||'{}');
+      const moving = scope.querySelector('.drop .tag[data-__dragging="1"]');
+      let node;
+      if(moving){ node = moving; }
+      else { node = useExpect ? mkChip(null,d.text,d.expect) : mkChip({key:d.key}, d.text); }
+      node.style.background=''; node.style.borderColor='';
+      el.appendChild(node);
+    });
+  });
+  bank.addEventListener('dragover',e=>e.preventDefault());
+  bank.addEventListener('drop',e=>{
+    e.preventDefault();
+    const dragging = scope.querySelector('.drop .tag[data-__dragging="1"]');
+    if(dragging){ dragging.style.background=''; dragging.style.borderColor=''; bank.appendChild(dragging); }
+  });
+  const check=byId('check');
+  if(check) check.onclick=()=>{
+    let c=0,t=0;
+    scope.querySelectorAll('.drop').forEach(el=>{
+      const want = useExpect ? el.dataset.k : el.dataset.key;
+      el.querySelectorAll('.tag').forEach(tag=>{
+        t++; const ok = useExpect ? (tag.dataset.expect===want) : (tag.dataset.key===want);
+        tag.style.borderColor = ok ? '#b7dfc5' : '#f1b0b7';
+        tag.style.background = ok ? '#d4edda' : '#f8d7da';
+        if(ok) c++;
+      });
+    });
+    const fb = byId('fb');
+    if(fb) fb.innerHTML = (t>0 && c===t) ? `<div class="good">✓ Perfect! ${c}/${t}</div>` : `<div class="bad">${c}/${t} correct.</div>`;
+  };
+  const clearBtn=byId('clearMarks');
+  if(clearBtn) clearBtn.onclick=()=>{
+    scope.querySelectorAll('.drop .tag').forEach(tag=>{ tag.style.background=''; tag.style.borderColor=''; });
+    const fb = byId('fb'); if(fb) fb.innerHTML='';
+  };
+}
+
+// Controls
+byId('darkToggle').onchange=()=>document.body.classList.toggle('dark', byId('darkToggle').checked);
+byId('start').onclick=()=>{ resetPools(); render(); };
+byId('mode').onchange=()=>render();
+document.addEventListener('keydown',e=>{ if(isTyping(document.activeElement)) return; if(e.key.toLowerCase()==='r'){ resetPools(); render(); } if(e.key==='Enter'){ const b=byId('enterAction'); if(b) b.click(); }});
+
+// Render
+function render(){
+  buildRef();
+  const mode = byId('mode').value;
+  const w = byId('work'); w.innerHTML="";
+  if(mode==='mcq'){ mcq(); }
+  else if(mode==='drag_match'){ dragMatch(true); }
+  else if(mode==='sort_bins'){ sortBins(true); }
+  else { sequence(); }
+}
+
+// init
+resetPools();
+render();
+</script>
+</body>
+</html>

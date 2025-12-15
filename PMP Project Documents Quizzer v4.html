@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PMP Project Documents Quizzer</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' ry='12' fill='%232874A6'/><text x='50%' y='58%' text-anchor='middle' font-size='20' font-family='Verdana' fill='white'>PD</text></svg>">
+<style>
+:root{
+  --accent:#2874A6;
+  --bg:#f6f7fb;--panel:#ffffff;--border:#dbe2ee;--text:#0a1522;--muted:#556273;--chip:#eef3f8;--dash:#cfd9e3;
+  --good:#155724;--goodbg:#d4edda;--bad:#7a1d1d;--badbg:#f8d7da;--warning:#856404;--warningbg:#fff3cd
+}
+.dark{--bg:#0c1015;--panel:#121a23;--border:#223042;--text:#e8edf3;--muted:#9ab0c6;--chip:#172233;--dash:#2a374b;--good:#69db7c;--goodbg:#0f1a12;--bad:#ff8787;--badbg:#1a0f10;--warning:#ffd43b;--warningbg:#1a1508}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;color:var(--text);background:var(--bg)}
+header{display:flex;gap:12px;align-items:center;padding:14px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:clamp(1.08rem,2.6vw,1.45rem);color:var(--accent)}
+main{max-width:1400px;margin:0 auto;padding:16px;display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:1100px){main{grid-template-columns:1fr 420px}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.card h2{margin:0;padding:12px 14px;border-bottom:1px solid var(--border);font-size:1.02rem}
+.card .content{padding:12px 14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+select,button,input{background:#fff;border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px}
+.dark select,.dark button,.dark input{background:#0f141b;border-color:#263244;color:#e9eef3}
+button{cursor:pointer;font-weight:600}
+button:hover{opacity:0.9}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:var(--chip);border:1px solid var(--border);font-size:.86rem}
+.muted{color:var(--muted);opacity:.95}
+.hint{background:var(--chip);border-left:3px solid var(--accent);padding:12px;border-radius:10px;margin-top:8px}
+.good{color:var(--good);background:var(--goodbg);padding:8px 10px;border-radius:10px;border:1px solid #b7dfc5}
+.bad{color:var(--bad);background:var(--badbg);padding:8px 10px;border-radius:10px;border:1px solid #f1b0b7}
+.warning{color:var(--warning);background:var(--warningbg);padding:8px 10px;border-radius:10px;border:1px solid #ffeaa7}
+small{font-size:.86rem}
+hr{border:none;border-top:1px solid var(--border);margin:12px 0}
+.counter{margin-left:auto;color:var(--muted);font-size:.9rem}
+.fixed{position:sticky;top:72px;max-height:calc(100vh - 88px);overflow-y:auto}
+
+/* Drag and Drop */
+.drag{padding:10px;border:1px dashed var(--dash);border-radius:10px;background:var(--panel);cursor:grab;text-align:center;font-size:.95rem;font-weight:600}
+.drag:active{cursor:grabbing}
+.drag.dragging{opacity:0.5}
+.dark .drag{background:#0f141b}
+.drags,.drops{display:grid;gap:10px;margin:10px 0}
+.drags{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.drop{min-height:90px;border:2px dashed var(--dash);border-radius:10px;background:var(--chip);padding:8px;display:flex;flex-direction:column;gap:8px;transition:all 0.2s}
+.drop.drag-over{background:#e8f4ff;border-color:var(--accent);border-width:3px}
+.drop .drag{background:white;border:1px solid var(--border);cursor:grab}
+.dark .drop{background:#0f141b}
+.dark .drop .drag{background:#1a222d}
+.drop-label{font-weight:700;color:var(--accent);text-align:center;margin-bottom:4px;font-size:.9rem}
+
+/* MCQ Options */
+.opt{padding:12px 16px;background:white;border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;margin:6px 0;text-align:left}
+.opt:hover{background:var(--chip);border-color:var(--accent)}
+.opt.selected{background:var(--accent);color:white;border-color:var(--accent)}
+.dark .opt{background:#0f141b}
+.dark .opt:hover{background:#1a222d}
+
+/* Advanced Drag-Drop Grid */
+.dnd-grid{display:grid;gap:12px;margin:16px 0}
+.dnd-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:start}
+.dnd-col{min-height:80px;border:2px dashed var(--dash);border-radius:10px;background:var(--chip);padding:8px;position:relative}
+.dnd-col.filled{background:var(--panel);border-style:solid;border-color:var(--accent)}
+.dnd-col.drag-over{background:#e8f4ff;border-color:var(--accent);border-width:3px}
+.dnd-col-header{font-size:.8rem;font-weight:700;color:var(--accent);margin-bottom:6px;text-align:center}
+.dnd-item{padding:8px;background:white;border:1px solid var(--border);border-radius:8px;cursor:grab;font-size:.9rem;text-align:center}
+.dnd-item:active{cursor:grabbing}
+.dnd-item.dragging{opacity:0.4}
+.dark .dnd-item{background:#1a222d}
+.dnd-bank{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin:16px 0;padding:12px;background:var(--chip);border-radius:10px;border:1px solid var(--border)}
+
+.ref-table{width:100%;font-size:.82rem;margin:8px 0;border-collapse:collapse}
+.ref-table th{background:var(--accent);color:white;padding:8px 6px;text-align:left}
+.ref-table td{padding:6px;border-bottom:1px solid var(--border)}
+.ref-table tr:hover{background:var(--chip)}
+
+.process-group{display:inline-block;padding:4px 8px;border-radius:6px;font-size:.75rem;font-weight:600;margin:2px}
+.pg-init{background:#e3f2fd;color:#1565c0}
+.pg-plan{background:#f3e5f5;color:#6a1b9a}
+.pg-exec{background:#e8f5e9;color:#2e7d32}
+.pg-mon{background:#fff3e0;color:#e65100}
+.pg-close{background:#fce4ec;color:#c2185b}
+</style>
+</head>
+<body>
+<header>
+  <h1>📋 PMP Project Documents Quizzer</h1>
+  <div style="flex:1"></div>
+  <label class="pill"><input type="checkbox" id="darkToggle"> Dark mode</label>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Practice Modes</h2>
+    <div class="content">
+      <div class="row">
+        <label class="muted">Select Mode</label>
+        <select id="mode">
+          <option value="mcq-desc">1️⃣ MCQ: Document → Description</option>
+          <option value="mcq-process">2️⃣ MCQ: Document → Process</option>
+          <option value="mcq-reverse">3️⃣ MCQ: Description → Document</option>
+          <option value="dnd-advanced">4️⃣ Drag & Drop: Complete the Row</option>
+          <option value="matching">5️⃣ Drag & Match (All Three)</option>
+          <option value="study">6️⃣ Study Mode (Browse All)</option>
+        </select>
+        <button id="start">Start / Reset</button>
+        <span id="batchCounter" class="counter"></span>
+      </div>
+      <div id="work"></div>
+    </div>
+  </section>
+
+  <aside class="card fixed">
+    <h2>📚 Quick Reference</h2>
+    <div class="content">
+      <div class="hint">
+        <b style="color:#2874A6">33 Project Documents (PMBOK 6)</b>
+        <div style="font-size:.82rem;margin-top:8px">
+          Project documents support the project management plan and provide detailed information throughout the project lifecycle. They differ from the plan components as they're supporting materials rather than guiding elements.
+        </div>
+      </div>
+
+      <div class="hint" style="margin-top:10px">
+        <b style="color:#2874A6">Process Groups Legend</b>
+        <div style="margin-top:8px">
+          <span class="process-group pg-init">Initiating</span>
+          <span class="process-group pg-plan">Planning</span>
+          <span class="process-group pg-exec">Executing</span>
+          <span class="process-group pg-mon">Monitoring</span>
+          <span class="process-group pg-close">Closing</span>
+        </div>
+      </div>
+
+      <div class="hint" style="margin-top:10px">
+        <b>💡 Study Tips</b>
+        <div style="font-size:.82rem;line-height:1.5;margin-top:6px">
+          • Focus on which <b>process creates</b> each document<br>
+          • Understand the <b>purpose</b> of each document<br>
+          • Note documents that are <b>logs vs. registers</b><br>
+          • Pay attention to <b>resource-related</b> documents<br>
+          • Remember <b>quality</b> and <b>risk</b> documents
+        </div>
+      </div>
+
+      <div class="hint" style="margin-top:10px">
+        <b>🎯 Key Categories</b>
+        <table class="ref-table" style="margin-top:8px">
+          <tr><td><b>Logs/Registers (6)</b></td><td>Assumption, Change, Issue, Lessons Learned, Risk, Stakeholder</td></tr>
+          <tr><td><b>Estimates (3)</b></td><td>Basis, Cost, Duration</td></tr>
+          <tr><td><b>Resource Docs (5)</b></td><td>Physical Assignments, Team Assignments, Calendars, Breakdown, Requirements</td></tr>
+          <tr><td><b>Quality (3)</b></td><td>Measurements, Metrics, Report</td></tr>
+          <tr><td><b>Schedule (4)</b></td><td>Activity List, Attributes, Network Diagram, Schedule</td></tr>
+        </table>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<script>
+// ============================================================================
+// DATA: 33 PROJECT DOCUMENTS
+// ============================================================================
+const DOCUMENTS = [
+  {
+    name: "Activity Attributes",
+    description: "Detailed information about each activity including identifiers, predecessors, successors, resource requirements, constraints, and assumptions",
+    process: "Define Activities",
+    processGroup: "Planning",
+    category: "Schedule"
+  },
+  {
+    name: "Activity List",
+    description: "Comprehensive list of all schedule activities required for the project including activity identifier and scope of work description",
+    process: "Define Activities",
+    processGroup: "Planning",
+    category: "Schedule"
+  },
+  {
+    name: "Assumption Log",
+    description: "Records all project assumptions and constraints throughout the project lifecycle",
+    process: "Develop Project Charter",
+    processGroup: "Initiating",
+    category: "Integration"
+  },
+  {
+    name: "Basis of Estimates",
+    description: "Supporting documentation describing how schedule, cost, and resource estimates were developed, including confidence levels and ranges",
+    process: "Estimate Activity Durations / Estimate Costs / Estimate Activity Resources",
+    processGroup: "Planning",
+    category: "Estimates"
+  },
+  {
+    name: "Change Log",
+    description: "Comprehensive list of changes submitted during the project and their current status as they move through integrated change control",
+    process: "Perform Integrated Change Control",
+    processGroup: "Monitoring & Controlling",
+    category: "Integration"
+  },
+  {
+    name: "Cost Estimates",
+    description: "Quantitative assessment of the probable costs required to complete project work, ideally expressed as a range",
+    process: "Estimate Costs",
+    processGroup: "Planning",
+    category: "Estimates"
+  },
+  {
+    name: "Cost Forecasts",
+    description: "Predictions of estimated cost to complete all remaining work based on current project performance and trends",
+    process: "Control Costs",
+    processGroup: "Monitoring & Controlling",
+    category: "Cost"
+  },
+  {
+    name: "Duration Estimates",
+    description: "Quantitative assessments of the likely number of work periods needed to complete each activity",
+    process: "Estimate Activity Durations",
+    processGroup: "Planning",
+    category: "Estimates"
+  },
+  {
+    name: "Issue Log",
+    description: "Document where current conditions or situations that may impact project objectives are recorded and monitored",
+    process: "Direct and Manage Project Work",
+    processGroup: "Executing",
+    category: "Integration"
+  },
+  {
+    name: "Lessons Learned Register",
+    description: "Repository of knowledge gained during the project to improve current project performance and future projects",
+    process: "Manage Project Knowledge",
+    processGroup: "Executing",
+    category: "Integration"
+  },
+  {
+    name: "Milestone List",
+    description: "List identifying all project milestones and indicates whether the milestone is mandatory or optional",
+    process: "Define Activities",
+    processGroup: "Planning",
+    category: "Schedule"
+  },
+  {
+    name: "Physical Resource Assignments",
+    description: "Documentation of assignments of physical resources (materials, equipment, supplies) to specific activities or work packages",
+    process: "Acquire Resources",
+    processGroup: "Executing",
+    category: "Resources"
+  },
+  {
+    name: "Project Calendars",
+    description: "Calendar identifying working days and shifts available for scheduled activities",
+    process: "Develop Schedule",
+    processGroup: "Planning",
+    category: "Schedule"
+  },
+  {
+    name: "Project Communications",
+    description: "Information created and distributed to stakeholders according to the communications management plan",
+    process: "Manage Communications",
+    processGroup: "Executing",
+    category: "Communications"
+  },
+  {
+    name: "Project Schedule",
+    description: "Outputs of the schedule model including planned dates for completing project activities, presented as bar charts, milestone charts, or network diagrams",
+    process: "Develop Schedule",
+    processGroup: "Planning",
+    category: "Schedule"
+  },
+  {
+    name: "Project Schedule Network Diagram",
+    description: "Graphical representation showing logical relationships (dependencies) among project schedule activities",
+    process: "Sequence Activities",
+    processGroup: "Planning",
+    category: "Schedule"
+  },
+  {
+    name: "Project Scope Statement",
+    description: "Detailed description of the project and product scope, major deliverables, assumptions, and constraints",
+    process: "Define Scope",
+    processGroup: "Planning",
+    category: "Scope"
+  },
+  {
+    name: "Project Team Assignments",
+    description: "Documentation showing which team members are assigned to which activities or work packages",
+    process: "Acquire Resources",
+    processGroup: "Executing",
+    category: "Resources"
+  },
+  {
+    name: "Quality Control Measurements",
+    description: "Documented results of control quality activities showing whether quality requirements have been met",
+    process: "Control Quality",
+    processGroup: "Monitoring & Controlling",
+    category: "Quality"
+  },
+  {
+    name: "Quality Metrics",
+    description: "Specific project or product attributes and how they will be measured by control quality processes",
+    process: "Plan Quality Management",
+    processGroup: "Planning",
+    category: "Quality"
+  },
+  {
+    name: "Quality Report",
+    description: "Summary of quality management issues, recommendations for improvements, and corrective action recommendations",
+    process: "Manage Quality",
+    processGroup: "Executing",
+    category: "Quality"
+  },
+  {
+    name: "Requirements Documentation",
+    description: "Description of how individual requirements meet business needs including stakeholder needs, expectations, and constraints",
+    process: "Collect Requirements",
+    processGroup: "Planning",
+    category: "Scope"
+  },
+  {
+    name: "Requirements Traceability Matrix",
+    description: "Grid linking product requirements from origin to deliverables that satisfy them, ensuring each requirement adds business value",
+    process: "Collect Requirements",
+    processGroup: "Planning",
+    category: "Scope"
+  },
+  {
+    name: "Resource Breakdown Structure",
+    description: "Hierarchical representation of resources by category and type (labor, material, equipment, supplies)",
+    process: "Estimate Activity Resources",
+    processGroup: "Planning",
+    category: "Resources"
+  },
+  {
+    name: "Resource Calendars",
+    description: "Calendar identifying working and non-working days that determine when specific resources are available",
+    process: "Acquire Resources",
+    processGroup: "Executing",
+    category: "Resources"
+  },
+  {
+    name: "Resource Requirements",
+    description: "Types and quantities of resources required for each activity in a work package",
+    process: "Estimate Activity Resources",
+    processGroup: "Planning",
+    category: "Resources"
+  },
+  {
+    name: "Risk Register",
+    description: "Repository containing detailed information about identified individual project risks including descriptions, owners, and response strategies",
+    process: "Identify Risks",
+    processGroup: "Planning",
+    category: "Risk"
+  },
+  {
+    name: "Risk Report",
+    description: "Presents information on sources of overall project risk and summary information on identified individual project risks",
+    process: "Identify Risks",
+    processGroup: "Planning",
+    category: "Risk"
+  },
+  {
+    name: "Schedule Data",
+    description: "Collection of information for describing and controlling the schedule including milestones, activities, attributes, and documentation of assumptions",
+    process: "Develop Schedule",
+    processGroup: "Planning",
+    category: "Schedule"
+  },
+  {
+    name: "Schedule Forecasts",
+    description: "Estimates or predictions of conditions in the project's future based on current schedule performance",
+    process: "Control Schedule",
+    processGroup: "Monitoring & Controlling",
+    category: "Schedule"
+  },
+  {
+    name: "Stakeholder Register",
+    description: "Document containing identification information, assessment information, and stakeholder classification for all project stakeholders",
+    process: "Identify Stakeholders",
+    processGroup: "Initiating",
+    category: "Stakeholder"
+  },
+  {
+    name: "Team Charter",
+    description: "Document establishing team values, agreements, and operating guidelines including ground rules, communication guidelines, and decision-making criteria",
+    process: "Plan Resource Management",
+    processGroup: "Planning",
+    category: "Resources"
+  },
+  {
+    name: "Test and Evaluation Documents",
+    description: "Documents describing testing activities and evaluation criteria used to determine whether deliverables and acceptance criteria have been met",
+    process: "Manage Quality",
+    processGroup: "Executing",
+    category: "Quality"
+  }
+];
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+const byId = id => document.getElementById(id);
+
+function shuffle(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+let currentQ = 0;
+let currentBatch = [];
+
+// ============================================================================
+// MODE 1: MCQ - DOCUMENT TO DESCRIPTION
+// ============================================================================
+function mcqDescMode() {
+  if (currentQ >= DOCUMENTS.length) currentQ = 0;
+  
+  const doc = DOCUMENTS[currentQ];
+  const others = DOCUMENTS.filter(d => d.name !== doc.name);
+  const wrongOptions = shuffle(others).slice(0, 3).map(d => d.description);
+  const allOptions = shuffle([doc.description, ...wrongOptions]);
+  
+  let html = '<div class="hint"><b>Document → Description</b><br>Select the correct description for this project document</div>';
+  html += `<div style="text-align:center;font-size:1.3rem;font-weight:700;color:var(--accent);margin:20px 0">${doc.name}</div>`;
+  
+  html += '<div style="margin:16px 0">';
+  allOptions.forEach(opt => {
+    html += `<div class="opt" onclick="selectOpt(this)" data-answer="${opt}">${opt}</div>`;
+  });
+  html += '</div>';
+  
+  html += `<div class="row" style="justify-content:center"><button onclick="checkMCQ('${doc.description.replace(/'/g, "\\'")}', 'description')">Check</button><button onclick="nextMCQ()">Next</button></div>`;
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `Question ${currentQ + 1} of ${DOCUMENTS.length}`;
+}
+
+// ============================================================================
+// MODE 2: MCQ - DOCUMENT TO PROCESS
+// ============================================================================
+function mcqProcessMode() {
+  if (currentQ >= DOCUMENTS.length) currentQ = 0;
+  
+  const doc = DOCUMENTS[currentQ];
+  const allProcesses = [...new Set(DOCUMENTS.map(d => d.process))];
+  const wrongOptions = shuffle(allProcesses.filter(p => p !== doc.process)).slice(0, 3);
+  const allOptions = shuffle([doc.process, ...wrongOptions]);
+  
+  let html = '<div class="hint"><b>Document → Process</b><br>Select the process that creates or first outputs this document</div>';
+  html += `<div style="text-align:center;font-size:1.3rem;font-weight:700;color:var(--accent);margin:20px 0">${doc.name}</div>`;
+  
+  html += '<div style="margin:16px 0">';
+  allOptions.forEach(opt => {
+    html += `<div class="opt" onclick="selectOpt(this)" data-answer="${opt}">${opt}</div>`;
+  });
+  html += '</div>';
+  
+  html += `<div class="row" style="justify-content:center"><button onclick="checkMCQ('${doc.process.replace(/'/g, "\\'")}', 'process')">Check</button><button onclick="nextMCQ()">Next</button></div>`;
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `Question ${currentQ + 1} of ${DOCUMENTS.length}`;
+}
+
+// ============================================================================
+// MODE 3: MCQ - DESCRIPTION TO DOCUMENT (REVERSE)
+// ============================================================================
+function mcqReverseMode() {
+  if (currentQ >= DOCUMENTS.length) currentQ = 0;
+  
+  const doc = DOCUMENTS[currentQ];
+  const others = DOCUMENTS.filter(d => d.name !== doc.name);
+  const wrongOptions = shuffle(others).slice(0, 3).map(d => d.name);
+  const allOptions = shuffle([doc.name, ...wrongOptions]);
+  
+  let html = '<div class="hint"><b>Description → Document</b><br>Which document matches this description?</div>';
+  html += `<div style="background:var(--chip);border:1px solid var(--border);border-radius:10px;padding:14px;margin:12px 0;font-size:1.05rem">${doc.description}</div>`;
+  
+  html += '<div style="margin:16px 0">';
+  allOptions.forEach(opt => {
+    html += `<div class="opt" onclick="selectOpt(this)" data-answer="${opt}">${opt}</div>`;
+  });
+  html += '</div>';
+  
+  html += `<div class="row" style="justify-content:center"><button onclick="checkMCQ('${doc.name.replace(/'/g, "\\'")}', 'name')">Check</button><button onclick="nextMCQ()">Next</button></div>`;
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `Question ${currentQ + 1} of ${DOCUMENTS.length}`;
+}
+
+// ============================================================================
+// MCQ HELPER FUNCTIONS
+// ============================================================================
+function selectOpt(elem) {
+  document.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+  elem.classList.add('selected');
+}
+
+function checkMCQ(correct, type) {
+  const selected = document.querySelector('.opt.selected');
+  if (!selected) {
+    byId('fb').innerHTML = '<div class="warning">Please select an answer.</div>';
+    return;
+  }
+  
+  const isCorrect = selected.dataset.answer === correct;
+  
+  if (isCorrect) {
+    const doc = DOCUMENTS[currentQ];
+    let extra = '';
+    if (type === 'description' || type === 'name') {
+      extra = `<br><small>Created in: <b>${doc.process}</b></small>`;
+    } else if (type === 'process') {
+      extra = `<br><small>${doc.description.substring(0, 80)}...</small>`;
+    }
+    byId('fb').innerHTML = `<div class="good">✓ Correct!${extra}</div>`;
+  } else {
+    byId('fb').innerHTML = `<div class="bad">✗ Correct answer: <b>${correct}</b></div>`;
+  }
+}
+
+function nextMCQ() {
+  currentQ++;
+  const mode = byId('mode').value;
+  if (mode === 'mcq-desc') mcqDescMode();
+  else if (mode === 'mcq-process') mcqProcessMode();
+  else if (mode === 'mcq-reverse') mcqReverseMode();
+}
+
+// ============================================================================
+// MODE 4: ADVANCED DRAG & DROP - COMPLETE THE ROW
+// ============================================================================
+function dndAdvancedMode() {
+  if (!currentBatch.length) {
+    currentBatch = shuffle([...DOCUMENTS]).slice(0, 5);
+    currentQ = 0;
+  }
+  
+  let html = '<div class="hint"><b>Drag & Drop: Complete the Row</b><br>One column in each row is filled. Drag the correct items from the bank below to complete each row.</div>';
+  
+  // Determine which column is pre-filled for each row (randomized)
+  const rowConfigs = currentBatch.map(() => Math.floor(Math.random() * 3));
+  
+  html += '<div class="dnd-grid">';
+  
+  // Headers
+  html += '<div class="dnd-row" style="font-weight:700;color:var(--accent);margin-bottom:8px">';
+  html += '<div style="text-align:center">Document Name</div>';
+  html += '<div style="text-align:center">Description</div>';
+  html += '<div style="text-align:center">Created In Process</div>';
+  html += '</div>';
+  
+  // Rows
+  currentBatch.forEach((doc, idx) => {
+    html += `<div class="dnd-row" data-row="${idx}">`;
+    
+    // Column 0: Name
+    if (rowConfigs[idx] === 0) {
+      html += `<div class="dnd-col filled"><div class="dnd-item" style="cursor:default">${doc.name}</div></div>`;
+    } else {
+      html += `<div class="dnd-col" data-col="name" data-expect="${doc.name}" ondrop="dropAdvanced(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>`;
+    }
+    
+    // Column 1: Description
+    if (rowConfigs[idx] === 1) {
+      html += `<div class="dnd-col filled"><div class="dnd-item" style="cursor:default">${doc.description}</div></div>`;
+    } else {
+      html += `<div class="dnd-col" data-col="description" data-expect="${doc.description}" ondrop="dropAdvanced(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>`;
+    }
+    
+    // Column 2: Process
+    if (rowConfigs[idx] === 2) {
+      html += `<div class="dnd-col filled"><div class="dnd-item" style="cursor:default">${doc.process}</div></div>`;
+    } else {
+      html += `<div class="dnd-col" data-col="process" data-expect="${doc.process}" ondrop="dropAdvanced(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>`;
+    }
+    
+    html += '</div>';
+  });
+  
+  html += '</div>';
+  
+  // Create item banks - only include items that need to be placed (not pre-filled)
+  const itemsToPlace = [];
+  
+  // For each row, add the items that are NOT pre-filled
+  currentBatch.forEach((doc, idx) => {
+    if (rowConfigs[idx] !== 0) itemsToPlace.push({type: 'name', value: doc.name});
+    if (rowConfigs[idx] !== 1) itemsToPlace.push({type: 'description', value: doc.description});
+    if (rowConfigs[idx] !== 2) itemsToPlace.push({type: 'process', value: doc.process});
+  });
+  
+  html += '<div style="margin-top:20px"><b>Drag items from here:</b> <small class="muted">(${itemsToPlace.length} items to place)</small></div>';
+  html += '<div class="dnd-bank" id="dndBank" ondrop="dropToBank(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">';
+  
+  shuffle(itemsToPlace).forEach(item => {
+    html += `<div class="dnd-item" draggable="true" ondragstart="dragStart(event)" data-type="${item.type}" data-value="${item.value.replace(/"/g, '&quot;')}">${item.value}</div>`;
+  });
+  
+  html += '</div>';
+  
+  html += '<div class="row" style="justify-content:center;margin-top:16px"><button onclick="checkAdvancedDND()">Check All</button><button onclick="clearAdvancedDNDColors()">Clear Colors</button><button onclick="resetAdvancedDND()">Reset</button><button onclick="nextAdvancedDND()">Next Set</button></div>';
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `Set ${Math.floor(currentQ / 5) + 1}`;
+}
+
+function dragStart(e) {
+  e.dataTransfer.setData('text/plain', JSON.stringify({
+    type: e.target.dataset.type,
+    value: e.target.dataset.value
+  }));
+  e.target.classList.add('dragging');
+}
+
+function allowDrop(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+
+function dragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function dropAdvanced(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  
+  const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+  const col = e.currentTarget;
+  
+  // Only accept if column matches type
+  if (col.dataset.col === data.type) {
+    // If column already has an item, return it to the bank
+    const existing = col.querySelector('.dnd-item');
+    if (existing) {
+      const bank = document.getElementById('dndBank');
+      if (bank) {
+        existing.classList.remove('dragging');
+        bank.appendChild(existing);
+      }
+    }
+    
+    // Add the new item
+    const item = document.createElement('div');
+    item.className = 'dnd-item';
+    item.textContent = data.value;
+    item.draggable = true;
+    item.ondragstart = dragStart;
+    item.dataset.type = data.type;
+    item.dataset.value = data.value;
+    col.appendChild(item);
+    
+    // Remove from source (bank or another cell)
+    const dragging = document.querySelector('.dragging');
+    if (dragging) dragging.remove();
+  }
+  
+  document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+}
+
+function dropToBank(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  
+  const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+  const bank = document.getElementById('dndBank');
+  
+  // Add item back to bank
+  const item = document.createElement('div');
+  item.className = 'dnd-item';
+  item.textContent = data.value;
+  item.draggable = true;
+  item.ondragstart = dragStart;
+  item.dataset.type = data.type;
+  item.dataset.value = data.value;
+  bank.appendChild(item);
+  
+  // Remove from source
+  const dragging = document.querySelector('.dragging');
+  if (dragging) dragging.remove();
+  
+  document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+}
+
+function checkAdvancedDND() {
+  const cols = document.querySelectorAll('.dnd-col[data-expect]');
+  let correct = 0;
+  let total = cols.length;
+  let details = [];
+  
+  cols.forEach(col => {
+    const item = col.querySelector('.dnd-item');
+    if (item && item.dataset.value === col.dataset.expect) {
+      col.style.borderColor = '#b7dfc5';
+      col.style.background = '#d4edda';
+      correct++;
+    } else {
+      col.style.borderColor = '#f1b0b7';
+      col.style.background = '#f8d7da';
+      if (!item) {
+        details.push(`Missing: ${col.dataset.col} for row`);
+      }
+    }
+  });
+  
+  if (correct === total) {
+    byId('fb').innerHTML = `<div class="good">✓ Perfect! All ${total} items placed correctly!</div>`;
+  } else {
+    byId('fb').innerHTML = `<div class="bad">You got ${correct}/${total} correct. You can still drag items to fix your answers, or click Reset to start over.</div>`;
+  }
+}
+
+function clearAdvancedDNDColors() {
+  const cols = document.querySelectorAll('.dnd-col');
+  cols.forEach(col => {
+    col.style.borderColor = '';
+    col.style.background = '';
+  });
+  byId('fb').innerHTML = '';
+}
+
+function resetAdvancedDND() {
+  dndAdvancedMode();
+}
+
+function nextAdvancedDND() {
+  currentBatch = [];
+  currentQ++;
+  dndAdvancedMode();
+}
+
+// ============================================================================
+// MODE 5: TRADITIONAL MATCHING (CLEARER DESIGN)
+// ============================================================================
+function matchingMode() {
+  if (!currentBatch.length) {
+    currentBatch = shuffle([...DOCUMENTS]).slice(0, 6);
+  }
+  
+  let html = '<div class="hint"><b>Drag & Match</b><br>Two separate matching challenges: First match names to descriptions, then match names to processes</div>';
+  
+  // PART 1: Match Names to Descriptions
+  html += '<div style="margin:20px 0;padding:16px;background:var(--chip);border-radius:10px;border:1px solid var(--border)">';
+  html += '<h3 style="color:var(--accent);margin:0 0 12px 0">Part 1: Match Document Names to Descriptions</h3>';
+  html += '<div style="display:grid;grid-template-columns:200px 1fr;gap:10px">';
+  
+  // Left: Names (draggable source)
+  html += '<div><div class="drop-label">Document Names</div><div class="drags">';
+  currentBatch.forEach(doc => {
+    html += `<div class="drag" draggable="true" ondragstart="dragMatch(event)" data-type="name" data-value="${doc.name}">${doc.name}</div>`;
+  });
+  html += '</div></div>';
+  
+  // Right: Descriptions (drop zones)
+  html += '<div><div class="drop-label">Descriptions (drag names here)</div>';
+  shuffle([...currentBatch]).forEach(doc => {
+    html += `<div class="drop" data-type="desc-match" data-match="${doc.name}" ondrop="dropMatch(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" style="margin-bottom:8px">
+      <div style="font-size:.88rem;color:var(--muted);padding:8px">${doc.description}</div>
+    </div>`;
+  });
+  html += '</div></div></div>';
+  
+  // PART 2: Match Names to Processes
+  html += '<div style="margin:20px 0;padding:16px;background:var(--chip);border-radius:10px;border:1px solid var(--border)">';
+  html += '<h3 style="color:var(--accent);margin:0 0 12px 0">Part 2: Match Document Names to Processes</h3>';
+  html += '<div style="display:grid;grid-template-columns:200px 1fr;gap:10px">';
+  
+  // Left: Names (draggable source)
+  html += '<div><div class="drop-label">Document Names</div><div class="drags">';
+  currentBatch.forEach(doc => {
+    html += `<div class="drag" draggable="true" ondragstart="dragMatch(event)" data-type="name" data-value="${doc.name}">${doc.name}</div>`;
+  });
+  html += '</div></div>';
+  
+  // Right: Processes (drop zones)
+  html += '<div><div class="drop-label">Processes (drag names here)</div>';
+  shuffle([...currentBatch]).forEach(doc => {
+    html += `<div class="drop" data-type="proc-match" data-match="${doc.name}" ondrop="dropMatch(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" style="margin-bottom:8px">
+      <div style="font-size:.88rem;font-weight:600;color:var(--accent);padding:8px;text-align:center">${doc.process}</div>
+    </div>`;
+  });
+  html += '</div></div></div>';
+  
+  html += '<div class="row" style="justify-content:center"><button onclick="checkMatching()">Check All</button><button onclick="clearMatchingColors()">Clear Colors</button><button onclick="resetMatching()">Reset</button></div>';
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `${currentBatch.length} documents to match`;
+}
+
+function dragMatch(e) {
+  e.dataTransfer.setData('text/plain', JSON.stringify({
+    type: e.target.dataset.type,
+    value: e.target.dataset.value
+  }));
+  e.target.classList.add('dragging');
+}
+
+function dropMatch(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  
+  const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+  const drop = e.currentTarget;
+  
+  // Create draggable item in drop zone
+  if (data.type === 'name') {
+    const existing = drop.querySelector('.drag');
+    if (existing) {
+      existing.remove(); // Just remove, don't return to source
+    }
+    
+    const item = document.createElement('div');
+    item.className = 'drag';
+    item.textContent = data.value;
+    item.draggable = true;
+    item.ondragstart = dragMatch;
+    item.dataset.type = 'name';
+    item.dataset.value = data.value;
+    drop.insertBefore(item, drop.firstChild);
+  }
+  
+  document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+}
+
+function checkMatching() {
+  const drops = document.querySelectorAll('.drop');
+  let correct = 0;
+  
+  drops.forEach(drop => {
+    const item = drop.querySelector('.drag');
+    if (item && item.dataset.value === drop.dataset.match) {
+      drop.style.borderColor = '#b7dfc5';
+      drop.style.background = '#d4edda';
+      correct++;
+    } else if (item) {
+      drop.style.borderColor = '#f1b0b7';
+      drop.style.background = '#f8d7da';
+    } else {
+      drop.style.borderColor = '#f1b0b7';
+      drop.style.background = '#fff8f8';
+    }
+  });
+  
+  const total = drops.length;
+  if (correct === total) {
+    byId('fb').innerHTML = `<div class="good">✓ Perfect! All ${total} matches correct!</div>`;
+  } else {
+    byId('fb').innerHTML = `<div class="bad">You got ${correct}/${total} correct. Keep dragging to fix your answers!</div>`;
+  }
+}
+
+function clearMatchingColors() {
+  const drops = document.querySelectorAll('.drop');
+  drops.forEach(drop => {
+    drop.style.borderColor = '';
+    drop.style.background = '';
+  });
+  byId('fb').innerHTML = '';
+}
+
+function resetMatching() {
+  matchingMode();
+}
+
+// ============================================================================
+// MODE 6: STUDY MODE
+// ============================================================================
+function studyMode() {
+  let html = '<div class="hint"><b>Study Mode</b><br>Browse all 33 project documents with full details</div>';
+  
+  // Group by category
+  const categories = {};
+  DOCUMENTS.forEach(doc => {
+    if (!categories[doc.category]) categories[doc.category] = [];
+    categories[doc.category].push(doc);
+  });
+  
+  Object.keys(categories).sort().forEach(cat => {
+    html += `<div style="margin:20px 0"><h3 style="color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:6px">${cat} Documents (${categories[cat].length})</h3>`;
+    
+    categories[cat].forEach(doc => {
+      const pgClass = {
+        'Initiating': 'pg-init',
+        'Planning': 'pg-plan',
+        'Executing': 'pg-exec',
+        'Monitoring & Controlling': 'pg-mon',
+        'Closing': 'pg-close'
+      }[doc.processGroup] || 'pg-plan';
+      
+      html += `<div style="background:var(--chip);border:1px solid var(--border);border-radius:10px;padding:12px;margin:10px 0">
+        <div style="font-weight:700;font-size:1.1rem;color:var(--accent);margin-bottom:6px">${doc.name}</div>
+        <div style="margin:8px 0;line-height:1.5">${doc.description}</div>
+        <div style="margin-top:8px;font-size:.85rem">
+          <b>Created in:</b> ${doc.process} <span class="process-group ${pgClass}">${doc.processGroup}</span>
+        </div>
+      </div>`;
+    });
+    
+    html += '</div>';
+  });
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `All ${DOCUMENTS.length} documents`;
+}
+
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
+byId('start').onclick = () => {
+  currentQ = 0;
+  currentBatch = [];
+  const mode = byId('mode').value;
+  
+  if (mode === 'mcq-desc') mcqDescMode();
+  else if (mode === 'mcq-process') mcqProcessMode();
+  else if (mode === 'mcq-reverse') mcqReverseMode();
+  else if (mode === 'dnd-advanced') dndAdvancedMode();
+  else if (mode === 'matching') matchingMode();
+  else if (mode === 'study') studyMode();
+};
+
+byId('darkToggle').onchange = e => {
+  document.body.classList.toggle('dark', e.target.checked);
+};
+
+// Start with MCQ mode
+mcqDescMode();
+</script>
+</body>
+</html>

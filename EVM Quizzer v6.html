@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PMP EVM Quizzer - Complete</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' ry='12' fill='%232874A6'/><text x='50%' y='58%' text-anchor='middle' font-size='24' font-family='Verdana' fill='white'>EVM</text></svg>">
+<style>
+:root{
+  --accent:#2874A6;
+  --bg:#f6f7fb;--panel:#ffffff;--border:#dbe2ee;--text:#0a1522;--muted:#556273;--chip:#eef3f8;--dash:#cfd9e3;
+  --good:#155724;--goodbg:#d4edda;--bad:#7a1d1d;--badbg:#f8d7da;--warning:#856404;--warningbg:#fff3cd
+}
+.dark{--bg:#0c1015;--panel:#121a23;--border:#223042;--text:#e8edf3;--muted:#9ab0c6;--chip:#172233;--dash:#2a374b;--good:#69db7c;--goodbg:#0f1a12;--bad:#ff8787;--badbg:#1a0f10;--warning:#ffd43b;--warningbg:#1a1508}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;color:var(--text);background:var(--bg)}
+header{display:flex;gap:12px;align-items:center;padding:14px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:clamp(1.08rem,2.6vw,1.45rem);color:var(--accent)}
+main{max-width:1400px;margin:0 auto;padding:16px;display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:1100px){main{grid-template-columns:1fr 420px}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.card h2{margin:0;padding:12px 14px;border-bottom:1px solid var(--border);font-size:1.02rem}
+.card .content{padding:12px 14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+select,button,input{background:#fff;border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px}
+.dark select,.dark button,.dark input{background:#0f141b;border-color:#263244;color:#e9eef3}
+button{cursor:pointer;font-weight:600}
+button:hover{opacity:0.9}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:var(--chip);border:1px solid var(--border);font-size:.86rem}
+.muted{color:var(--muted);opacity:.95}
+.hint{background:var(--chip);border-left:3px solid var(--accent);padding:12px;border-radius:10px;margin-top:8px}
+.good{color:var(--good);background:var(--goodbg);padding:8px 10px;border-radius:10px;border:1px solid #b7dfc5}
+.bad{color:var(--bad);background:var(--badbg);padding:8px 10px;border-radius:10px;border:1px solid #f1b0b7}
+.warning{color:var(--warning);background:var(--warningbg);padding:8px 10px;border-radius:10px;border:1px solid #ffeaa7}
+small{font-size:.86rem}
+hr{border:none;border-top:1px solid var(--border);margin:12px 0}
+.counter{margin-left:auto;color:var(--muted);font-size:.9rem}
+.fixed{position:sticky;top:72px;max-height:calc(100vh - 88px);overflow-y:auto}
+
+/* Drag and Drop */
+.drag{padding:10px;border:1px dashed var(--dash);border-radius:10px;background:var(--panel);cursor:grab;text-align:center;font-size:.95rem;font-weight:600}
+.drag:active{cursor:grabbing}
+.drag.dragging{opacity:0.5}
+.dark .drag{background:#0f141b}
+.drags,.drops{display:grid;gap:10px;margin:10px 0}
+.drags{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.drop{min-height:90px;border:2px dashed var(--dash);border-radius:10px;background:var(--chip);padding:8px;display:flex;flex-direction:column;gap:8px;transition:all 0.2s}
+.drop.drag-over{background:#e8f4ff;border-color:var(--accent);border-width:3px}
+.drop .drag{background:white;border:1px solid var(--border);cursor:grab}
+.dark .drop{background:#0f141b}
+.dark .drop .drag{background:#1a222d}
+.drop-label{font-weight:700;color:var(--accent);text-align:center;margin-bottom:4px;font-size:.9rem}
+
+/* Formula and other inputs */
+.formula-input{width:100%;max-width:400px;padding:14px;font-size:1.1rem;border:2px solid var(--border);border-radius:10px;text-align:center;font-family:ui-monospace,monospace;margin:16px 0}
+.formula-term{font-size:1.8rem;font-weight:700;color:var(--accent);text-align:center;margin:16px 0}
+
+.opt{padding:12px 16px;background:white;border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;margin:6px 0;text-align:left}
+.opt:hover{background:var(--chip);border-color:var(--accent)}
+.opt.selected{background:var(--accent);color:white;border-color:var(--accent)}
+.dark .opt{background:#0f141b}
+.dark .opt:hover{background:#1a222d}
+
+.scenario-box{background:var(--chip);border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0}
+.metric-display{font-size:1.5rem;font-weight:700;color:var(--accent);text-align:center;margin:16px 0;padding:16px;background:var(--chip);border:2px solid var(--accent);border-radius:10px}
+.data-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:16px 0}
+.data-item{background:var(--chip);border:1px solid var(--border);padding:12px;border-radius:8px;text-align:center}
+.data-label{font-size:.8rem;color:var(--muted);margin-bottom:4px}
+.data-value{font-size:1.2rem;font-weight:700;color:var(--accent)}
+.calc-input{width:140px;padding:10px;font-size:1rem;border:2px solid var(--border);border-radius:8px;text-align:center;margin:0 6px}
+.calc-question{font-weight:600;margin:12px 0}
+
+.ref-table{width:100%;font-size:.82rem;margin:8px 0;border-collapse:collapse}
+.ref-table th{background:var(--accent);color:white;padding:8px 6px;text-align:left}
+.ref-table td{padding:6px;border-bottom:1px solid var(--border)}
+.ref-table tr:hover{background:var(--chip)}
+
+/* MCQ Formula style */
+.mcq-formula{display:flex;align-items:center;justify-content:center;gap:12px;margin:20px 0;font-size:1.3rem;font-weight:600;flex-wrap:wrap}
+.mcq-term{color:var(--accent);font-size:1.5rem}
+.mcq-equals{color:var(--muted)}
+.mcq-question{background:#fff3cd;color:#856404;padding:12px 20px;border-radius:10px;font-size:1.4rem;min-width:60px;text-align:center}
+.dark .mcq-question{background:#1a1508;color:#ffd43b}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎯 PMP EVM Quizzer</h1>
+  <div style="flex:1"></div>
+  <label class="pill"><input type="checkbox" id="darkToggle"> Dark mode</label>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Practice Modes</h2>
+    <div class="content">
+      <div class="row">
+        <label class="muted">Select Mode</label>
+        <select id="mode">
+          <option value="matching">1️⃣ Drag & Match (Term-Description-Formula)</option>
+          <option value="formula">2️⃣ Formula Builder (Type It)</option>
+          <option value="mcq">3️⃣ Multiple Choice (Complete the Formula)</option>
+          <option value="interpretation">4️⃣ Metric Interpretation</option>
+          <option value="calculation">5️⃣ Calculation Practice</option>
+        </select>
+        <button id="start">Start / Reset</button>
+        <span id="batchCounter" class="counter"></span>
+      </div>
+      <div id="work"></div>
+    </div>
+  </section>
+
+  <aside class="card fixed">
+    <h2>📚 EVM Formula Reference</h2>
+    <div class="content">
+      <div class="hint">
+        <b style="color:#2874A6">Given Values (Measured)</b>
+        <table class="ref-table" style="margin-top:8px">
+          <tr><td><b>BAC</b></td><td>Budget at Completion - Total project budget. The value of total planned work, the project cost baseline.</td></tr>
+          <tr><td><b>PV</b></td><td>Planned Value - Budget for work scheduled (from baseline)(planned % complete × BAC). The value of the work planned to be completed to a point in time, usually the data date, or project completion.</td></tr>
+          <tr><td><b>EV</b></td><td>Earned Value - Budget for work completed (actual % complete × BAC). The planned value of all the work completed (earned) to a point in time, usually the data date, without reference to actual costs.</td></tr>
+          <tr><td><b>AC</b></td><td>Actual Cost - Money actually spent (sum of the cost for the given period). The actual cost of all the work completed to a point in time, usually the data date.</td></tr>
+        </table>
+      </div>
+
+      <div class="hint" style="margin-top:10px">
+        <b style="color:#2874A6">Variance Formulas</b>
+        <table class="ref-table" style="margin-top:8px">
+          <tr><td><b>CV</b></td><td>Cost Variance = EV − AC</td></tr>
+          <tr><td><b>SV</b></td><td>Schedule Variance = EV − PV</td></tr>
+        </table>
+        <small class="muted" style="display:block;margin-top:6px">
+          <b>Positive</b> = Good (under budget/ahead)<br>
+          <b>Negative</b> = Bad (over budget/behind)
+        </small>
+      </div>
+
+      <div class="hint" style="margin-top:10px">
+        <b style="color:#2874A6">Performance Indexes</b>
+        <table class="ref-table" style="margin-top:8px">
+          <tr><td><b>CPI</b></td><td>Cost Performance Index = EV ÷ AC</td></tr>
+          <tr><td><b>SPI</b></td><td>Schedule Performance Index = EV ÷ PV</td></tr>
+        </table>
+        <small class="muted" style="display:block;margin-top:6px">
+          <b>&gt; 1.0</b> = Good (efficient/ahead)<br>
+          <b>= 1.0</b> = On track<br>
+          <b>&lt; 1.0</b> = Bad (inefficient/behind)
+        </small>
+      </div>
+
+      <div class="hint" style="margin-top:10px">
+        <b style="color:#2874A6">Forecasting Formulas</b>
+        <table class="ref-table" style="margin-top:8px">
+          <tr><td><b>EAC</b></td><td>Estimate at Completion = BAC ÷ CPI<br><small class="muted">(Most common - assumes past performance continues)</small></td></tr>
+          <tr><td><b>ETC</b></td><td>Estimate to Complete = EAC − AC</td></tr>
+          <tr><td><b>VAC</b></td><td>Variance at Completion = BAC − EAC</td></tr>
+          <tr><td><b>TCPI</b></td><td>To-Complete Perf. Index = (BAC − EV) ÷ (BAC − AC)</td></tr>
+        </table>
+      </div>
+
+      <div class="hint" style="margin-top:10px">
+        <b>🔥 Quick Interpretation</b>
+        <div style="font-size:.82rem;line-height:1.5;margin-top:6px">
+          <b>CPI = 1.15:</b> Getting $1.15 value per $1 spent ✓<br>
+          <b>CPI = 0.85:</b> Getting $0.85 value per $1 spent ✗<br>
+          <b>SPI = 1.20:</b> 20% ahead of schedule ✓<br>
+          <b>SPI = 0.80:</b> 20% behind schedule ✗<br>
+          <b>CV = $5,000:</b> $5K under budget ✓<br>
+          <b>CV = -$5,000:</b> $5K over budget ✗<br>
+          <b>SV = $10,000:</b> $10K ahead ✓<br>
+          <b>SV = -$10,000:</b> $10K behind ✗<br>
+          <b>TCPI &gt; 1.0:</b> Need better efficiency to meet budget<br>
+          <b>TCPI &lt; 1.0:</b> Can be less efficient and still meet budget
+        </div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<script>
+const byId = id => document.getElementById(id);
+let currentQ = 0;
+let draggedElement = null;
+
+// CORE DATA
+const METRICS = [
+  { term: 'BAC', description: 'Budget at Completion - Total project budget', formula: 'None (given value)' },
+  { term: 'PV', description: 'Planned Value - Budget for work scheduled', formula: 'None (given value)' },
+  { term: 'EV', description: 'Earned Value - Budget for work completed', formula: 'None (given value)' },
+  { term: 'AC', description: 'Actual Cost - Money actually spent', formula: 'None (given value)' },
+  { term: 'CV', description: 'Cost Variance - Budget vs actual cost difference', formula: 'EV - AC' },
+  { term: 'SV', description: 'Schedule Variance - Work done vs planned', formula: 'EV - PV' },
+  { term: 'CPI', description: 'Cost Performance Index - Cost efficiency ratio', formula: 'EV / AC' },
+  { term: 'SPI', description: 'Schedule Performance Index - Schedule efficiency', formula: 'EV / PV' },
+  { term: 'EAC', description: 'Estimate at Completion - Forecasted total cost', formula: 'BAC / CPI' },
+  { term: 'ETC', description: 'Estimate to Complete - Cost to finish remaining work', formula: 'EAC - AC' },
+  { term: 'VAC', description: 'Variance at Completion - Forecasted budget variance', formula: 'BAC - EAC' },
+  { term: 'TCPI', description: 'To-Complete Performance Index - Efficiency needed', formula: '(BAC - EV) / (BAC - AC)' }
+];
+
+const FORMULAS = METRICS.filter(m => m.formula !== 'None (given value)');
+
+// MCQ - Formula completion style
+const MCQ_FORMULA_QUESTIONS = [
+  { term: 'CV', formula: 'EV - AC', options: ['EV / AC', 'EV - AC', 'EV - PV', 'BAC - EAC'] },
+  { term: 'SV', formula: 'EV - PV', options: ['EV - AC', 'PV - EV', 'EV - PV', 'EV / PV'] },
+  { term: 'CPI', formula: 'EV / AC', options: ['EV - AC', 'EV / AC', 'AC / EV', 'EV / PV'] },
+  { term: 'SPI', formula: 'EV / PV', options: ['EV - PV', 'PV / EV', 'EV / PV', 'EV / AC'] },
+  { term: 'EAC', formula: 'BAC / CPI', options: ['BAC - EAC', 'BAC / CPI', 'AC + ETC', 'BAC / SPI'] },
+  { term: 'ETC', formula: 'EAC - AC', options: ['BAC - AC', 'EAC - AC', 'BAC - EV', 'EV - AC'] },
+  { term: 'VAC', formula: 'BAC - EAC', options: ['EAC - BAC', 'BAC / CPI', 'BAC - EAC', 'BAC - AC'] },
+  { term: 'TCPI', formula: '(BAC - EV) / (BAC - AC)', options: ['(BAC - AC) / (BAC - EV)', '(BAC - EV) / (EAC - AC)', '(BAC - EV) / (BAC - AC)', '(EV - AC) / (BAC - EV)'] },
+  { term: 'BAC', formula: 'None (given value)', options: ['EV / AC', 'None (given value)', 'EV - AC', 'BAC - EAC'] },
+  { term: 'PV', formula: 'None (given value)', options: ['Planned % × BAC', 'None (given value)', 'EV - SV', 'BAC / Timeline'] },
+  { term: 'EV', formula: 'None (given value)', options: ['None (given value)', 'Actual % × BAC', 'PV + SV', 'AC + CV'] },
+  { term: 'AC', formula: 'None (given value)', options: ['EV - CV', 'None (given value)', 'PV - SV', 'EV / CPI'] }
+];
+
+// Interpretation questions
+const INTERPRETATIONS = [
+  {
+    metric: 'CPI',
+    value: '0.85',
+    correct: 'For every $1 spent, only $0.85 of value is being delivered - project is over budget',
+    options: [
+      'For every $1 spent, only $0.85 of value is being delivered - project is over budget',
+      'Project is 85% complete',
+      'Project is 15% ahead of schedule',
+      'Project has $0.85 remaining per dollar of budget'
+    ],
+    explanation: 'CPI = EV/AC. A CPI < 1.0 means you\'re getting less value than you\'re spending.'
+  },
+  {
+    metric: 'SPI',
+    value: '1.20',
+    correct: 'Project is 20% ahead of schedule',
+    options: [
+      'Project is 20% over budget',
+      'Project is 20% ahead of schedule',
+      'Project is 20% complete',
+      'Project needs 20% more resources'
+    ],
+    explanation: 'SPI = EV/PV. SPI > 1.0 means more work completed than planned - ahead of schedule.'
+  },
+  {
+    metric: 'CV',
+    value: '-$15,000',
+    correct: 'Project is $15,000 over budget',
+    options: [
+      'Project is $15,000 under budget',
+      'Project is $15,000 over budget',
+      'Project is $15,000 behind schedule',
+      'Project needs $15,000 more funding'
+    ],
+    explanation: 'CV = EV - AC. Negative CV means AC > EV, so you\'ve spent more than the value delivered.'
+  },
+  {
+    metric: 'SV',
+    value: '$8,000',
+    correct: 'Project is $8,000 worth of work ahead of schedule',
+    options: [
+      'Project is $8,000 over budget',
+      'Project is $8,000 under budget',
+      'Project is $8,000 worth of work ahead of schedule',
+      'Project has $8,000 remaining'
+    ],
+    explanation: 'SV = EV - PV. Positive SV means more work completed than planned - ahead of schedule.'
+  },
+  {
+    metric: 'TCPI',
+    value: '1.25',
+    correct: 'Must be 25% more efficient with remaining work to meet budget',
+    options: [
+      'Can be 25% less efficient and still meet budget',
+      'Must be 25% more efficient with remaining work to meet budget',
+      'Project is 25% complete',
+      'Project is 25% over budget'
+    ],
+    explanation: 'TCPI > 1.0 means you need better cost performance on remaining work to achieve BAC.'
+  },
+  {
+    metric: 'CPI',
+    value: '1.10',
+    correct: 'Getting $1.10 of value for every $1 spent - project is under budget',
+    options: [
+      'Project is 10% over budget',
+      'Project is 10% complete',
+      'Getting $1.10 of value for every $1 spent - project is under budget',
+      'Project needs 10% more resources'
+    ],
+    explanation: 'CPI = EV/AC. CPI > 1.0 means efficient cost performance - under budget.'
+  },
+  {
+    metric: 'VAC',
+    value: '-$20,000',
+    correct: 'Forecasted to finish $20,000 over budget',
+    options: [
+      'Forecasted to finish $20,000 under budget',
+      'Forecasted to finish $20,000 over budget',
+      'Currently $20,000 over budget',
+      'Need $20,000 more to complete'
+    ],
+    explanation: 'VAC = BAC - EAC. Negative VAC means EAC > BAC - forecasted to exceed budget.'
+  },
+  {
+    metric: 'SPI',
+    value: '0.75',
+    correct: 'Project is 25% behind schedule',
+    options: [
+      'Project is 75% complete',
+      'Project is 25% behind schedule',
+      'Project is 25% over budget',
+      'Project is 75% behind schedule'
+    ],
+    explanation: 'SPI = EV/PV. SPI = 0.75 means only 75% of planned work is complete - 25% behind.'
+  }
+];
+
+// Calculation scenarios
+const SCENARIOS = [
+  {
+    story: 'Your project has the following metrics at month 6:',
+    data: { 'BAC': '$200,000', 'PV': '$100,000', 'EV': '$90,000', 'AC': '$95,000' },
+    questions: [
+      { label: 'CV', answer: -5000, unit: '$', tolerance: 0 },
+      { label: 'SV', answer: -10000, unit: '$', tolerance: 0 },
+      { label: 'CPI', answer: 0.95, unit: '', tolerance: 0.01 },
+      { label: 'SPI', answer: 0.90, unit: '', tolerance: 0.01 }
+    ],
+    explanation: 'CV = 90,000 - 95,000 = -5,000. SV = 90,000 - 100,000 = -10,000. CPI = 90,000 ÷ 95,000 = 0.95. SPI = 90,000 ÷ 100,000 = 0.90.'
+  },
+  {
+    story: 'Project status check shows:',
+    data: { 'BAC': '$500,000', 'EV': '$250,000', 'AC': '$200,000' },
+    questions: [
+      { label: 'CV', answer: 50000, unit: '$', tolerance: 0 },
+      { label: 'CPI', answer: 1.25, unit: '', tolerance: 0.01 },
+      { label: 'EAC', answer: 400000, unit: '$', tolerance: 0 },
+      { label: 'VAC', answer: 100000, unit: '$', tolerance: 0 }
+    ],
+    explanation: 'CV = 250,000 - 200,000 = 50,000. CPI = 250,000 ÷ 200,000 = 1.25. EAC = 500,000 ÷ 1.25 = 400,000. VAC = 500,000 - 400,000 = 100,000.'
+  },
+  {
+    story: 'Current project data:',
+    data: { 'BAC': '$150,000', 'PV': '$75,000', 'EV': '$80,000', 'AC': '$85,000' },
+    questions: [
+      { label: 'CV', answer: -5000, unit: '$', tolerance: 0 },
+      { label: 'SV', answer: 5000, unit: '$', tolerance: 0 },
+      { label: 'CPI', answer: 0.94, unit: '', tolerance: 0.01 },
+      { label: 'SPI', answer: 1.07, unit: '', tolerance: 0.01 }
+    ],
+    explanation: 'CV = 80,000 - 85,000 = -5,000 (over budget). SV = 80,000 - 75,000 = 5,000 (ahead of schedule). CPI = 80,000 ÷ 85,000 ≈ 0.94. SPI = 80,000 ÷ 75,000 ≈ 1.07.'
+  },
+  {
+    story: 'Mid-project review:',
+    data: { 'BAC': '$300,000', 'EV': '$150,000', 'AC': '$180,000' },
+    questions: [
+      { label: 'CPI', answer: 0.83, unit: '', tolerance: 0.01 },
+      { label: 'EAC', answer: 361446, unit: '$', tolerance: 1000 },
+      { label: 'ETC', answer: 181446, unit: '$', tolerance: 1000 },
+      { label: 'TCPI', answer: 1.25, unit: '', tolerance: 0.01 }
+    ],
+    explanation: 'CPI = 150,000 ÷ 180,000 ≈ 0.83. EAC = 300,000 ÷ 0.83 ≈ 361,446. ETC = 361,446 - 180,000 ≈ 181,446. TCPI = (300,000 - 150,000) ÷ (300,000 - 180,000) = 1.25.'
+  }
+];
+
+function shuffle(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// DRAG AND DROP MODE
+function matchingMode() {
+  const batch = shuffle([...METRICS]).slice(0, 4);
+  const terms = batch.map(m => m.term);
+  const descriptions = shuffle(batch.map(m => m.description));
+  const formulas = shuffle(batch.map(m => m.formula));
+  
+  let html = '<div class="hint"><b>Drag & Match</b><br>Drag each description and formula to match the correct term</div>';
+  
+  // Terms (fixed)
+  html += '<div style="margin:16px 0"><b>Terms:</b></div>';
+  html += '<div class="drags">';
+  terms.forEach(t => {
+    html += `<div style="background:var(--accent);color:white;padding:12px;border-radius:10px;text-align:center;font-weight:700;font-size:1.1rem">${t}</div>`;
+  });
+  html += '</div>';
+  
+  // Descriptions (draggable)
+  html += '<div style="margin:16px 0"><b>Descriptions (drag these):</b></div>';
+  html += '<div class="drags" id="dragDesc">';
+  descriptions.forEach((d, i) => {
+    html += `<div class="drag" draggable="true" data-id="desc-${i}" data-value="${d}">${d}</div>`;
+  });
+  html += '</div>';
+  
+  // Formulas (draggable)
+  html += '<div style="margin:16px 0"><b>Formulas (drag these):</b></div>';
+  html += '<div class="drags" id="dragForm">';
+  formulas.forEach((f, i) => {
+    html += `<div class="drag" draggable="true" data-id="form-${i}" data-value="${f}">${f}</div>`;
+  });
+  html += '</div>';
+  
+  // Drop zones
+  html += '<div style="margin:20px 0"><b>Match each term (drop description and formula):</b></div>';
+  html += '<div class="drops">';
+  batch.forEach((m, i) => {
+    html += `<div>`;
+    html += `<div class="drop-label">${m.term}</div>`;
+    html += `<div class="drop" data-term="${m.term}" data-expects-desc="${m.description}" data-expects-form="${m.formula}"></div>`;
+    html += `</div>`;
+  });
+  html += '</div>';
+  
+  html += '<div class="row" style="justify-content:center;margin-top:16px"><button onclick="checkMatching()">Check All</button><button onclick="nextMatching()">Next Set</button></div>';
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `Set ${currentQ + 1}`;
+  
+  setupDragDrop();
+}
+
+function setupDragDrop() {
+  const draggables = document.querySelectorAll('.drag');
+  const dropZones = document.querySelectorAll('.drop');
+  
+  draggables.forEach(drag => {
+    drag.addEventListener('dragstart', (e) => {
+      draggedElement = e.target;
+      e.target.classList.add('dragging');
+    });
+    
+    drag.addEventListener('dragend', (e) => {
+      e.target.classList.remove('dragging');
+    });
+  });
+  
+  dropZones.forEach(zone => {
+    zone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      zone.classList.add('drag-over');
+    });
+    
+    zone.addEventListener('dragleave', () => {
+      zone.classList.remove('drag-over');
+    });
+    
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      
+      if (draggedElement) {
+        // Clone the dragged element
+        const clone = draggedElement.cloneNode(true);
+        clone.removeAttribute('draggable');
+        clone.classList.add('dropped');
+        
+        // Make it removable on click
+        clone.addEventListener('click', function() {
+          this.remove();
+        });
+        
+        zone.appendChild(clone);
+      }
+    });
+  });
+}
+
+function checkMatching() {
+  const dropZones = document.querySelectorAll('.drop');
+  let correct = 0;
+  let total = 0;
+  
+  dropZones.forEach(zone => {
+    const term = zone.dataset.term;
+    const expectedDesc = zone.dataset.expectsDesc;
+    const expectedForm = zone.dataset.expectsForm;
+    
+    const dropped = Array.from(zone.children).filter(c => c.classList.contains('dropped'));
+    const droppedValues = dropped.map(d => d.dataset.value);
+    
+    const hasDesc = droppedValues.includes(expectedDesc);
+    const hasForm = droppedValues.includes(expectedForm);
+    
+    total += 2;
+    if (hasDesc) correct++;
+    if (hasForm) correct++;
+    
+    if (hasDesc && hasForm) {
+      zone.style.borderColor = '#b7dfc5';
+      zone.style.background = '#d4edda';
+    } else {
+      zone.style.borderColor = '#f1b0b7';
+      zone.style.background = '#f8d7da';
+    }
+  });
+  
+  if (correct === total) {
+    byId('fb').innerHTML = '<div class="good">✓ Perfect! All matches correct!</div>';
+  } else {
+    byId('fb').innerHTML = `<div class="bad">You got ${correct}/${total} correct. Try again or click Next Set.</div>`;
+  }
+}
+
+function nextMatching() {
+  currentQ++;
+  matchingMode();
+}
+
+// FORMULA BUILDER MODE
+function formulaMode() {
+  const f = FORMULAS[currentQ % FORMULAS.length];
+  
+  let html = '<div class="hint"><b>Formula Builder</b><br>Enter the correct formula using variable names (e.g., "EV - AC")</div>';
+  html += `<div class="formula-term">${f.term}</div>`;
+  html += `<div style="text-align:center;margin:10px 0"><i>${f.description}</i></div>`;
+  html += '<div style="text-align:center"><input type="text" class="formula-input" id="formulaInput" placeholder="Enter formula..." autocomplete="off"></div>';
+  html += `<div class="row" style="justify-content:center"><button onclick="checkFormula('${f.formula}', '${f.term}')">Check</button><button onclick="nextFormula()">Next</button></div>`;
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `Formula ${currentQ + 1} of ${FORMULAS.length}`;
+  byId('formulaInput').focus();
+}
+
+function normalizeFormula(str) {
+  return str.replace(/\s/g, '').replace(/÷/g, '/').replace(/×/g, '*').replace(/−/g, '-').toUpperCase();
+}
+
+function checkFormula(correct, term) {
+  const input = byId('formulaInput').value.trim();
+  const normalized = normalizeFormula(input);
+  const correctNorm = normalizeFormula(correct);
+  
+  if (!input) {
+    byId('fb').innerHTML = '<div class="warning">Please enter a formula.</div>';
+    return;
+  }
+  
+  const isCorrect = normalized === correctNorm;
+  
+  if (isCorrect) {
+    byId('fb').innerHTML = '<div class="good">✓ Correct!</div>';
+  } else {
+    byId('fb').innerHTML = `<div class="bad">✗ Correct formula: <b>${correct}</b></div>`;
+  }
+}
+
+function nextFormula() {
+  currentQ++;
+  formulaMode();
+}
+
+// MCQ MODE - Formula completion style
+function mcqMode() {
+  const q = MCQ_FORMULA_QUESTIONS[currentQ % MCQ_FORMULA_QUESTIONS.length];
+  
+  let html = '<div class="hint"><b>Multiple Choice</b><br>Select the correct item to complete the set.</div>';
+  
+  html += '<div class="mcq-formula">';
+  html += `<span class="mcq-term">${q.term}</span>`;
+  html += '<span class="mcq-equals">=</span>';
+  html += '<span class="mcq-question">?</span>';
+  html += '</div>';
+  
+  const shuffled = shuffle(q.options);
+  html += '<div style="margin:16px 0">';
+  shuffled.forEach(opt => {
+    html += `<div class="opt" onclick="selectOpt(this)" data-answer="${opt}">${opt}</div>`;
+  });
+  html += '</div>';
+  
+  html += `<div class="row" style="justify-content:center"><button onclick="checkMCQ('${q.formula}')">Check</button><button onclick="nextMCQ()">Next</button></div>`;
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `Question ${currentQ + 1} of ${MCQ_FORMULA_QUESTIONS.length}`;
+}
+
+function selectOpt(elem) {
+  document.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+  elem.classList.add('selected');
+}
+
+function checkMCQ(correct) {
+  const selected = document.querySelector('.opt.selected');
+  if (!selected) {
+    byId('fb').innerHTML = '<div class="warning">Please select an answer.</div>';
+    return;
+  }
+  
+  const isCorrect = selected.dataset.answer === correct;
+  
+  if (isCorrect) {
+    byId('fb').innerHTML = '<div class="good">✓ Correct!</div>';
+  } else {
+    byId('fb').innerHTML = `<div class="bad">✗ Correct answer: <b>${correct}</b></div>`;
+  }
+}
+
+function nextMCQ() {
+  currentQ++;
+  mcqMode();
+}
+
+// INTERPRETATION MODE
+function interpretationMode() {
+  const qIndex = currentQ % INTERPRETATIONS.length;
+  const q = INTERPRETATIONS[qIndex];
+  
+  let html = '<div class="hint"><b>Metric Interpretation</b><br>Based on the metric value, what can you infer about the project?</div>';
+  html += '<div class="scenario-box">You are reviewing project metrics and see the following:</div>';
+  html += `<div class="metric-display">${q.metric} = ${q.value}</div>`;
+  html += '<div style="text-align:center;font-weight:600;margin:12px 0">What does this tell you about the project?</div>';
+  
+  const shuffled = shuffle(q.options);
+  html += '<div style="margin:16px 0" id="interpretOpts">';
+  shuffled.forEach(opt => {
+    html += `<div class="opt" onclick="selectOpt(this)" data-answer="${opt}">${opt}</div>`;
+  });
+  html += '</div>';
+  
+  html += `<div class="row" style="justify-content:center"><button onclick="checkInterpretation(${qIndex})">Check</button><button onclick="nextInterpretation()">Next</button></div>`;
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `Question ${currentQ + 1} of ${INTERPRETATIONS.length}`;
+}
+
+function checkInterpretation(qIndex) {
+  const selected = document.querySelector('.opt.selected');
+  if (!selected) {
+    byId('fb').innerHTML = '<div class="warning">Please select an answer.</div>';
+    return;
+  }
+  
+  const q = INTERPRETATIONS[qIndex];
+  const isCorrect = selected.dataset.answer === q.correct;
+  
+  if (isCorrect) {
+    byId('fb').innerHTML = `<div class="good">✓ Correct!<br><small>${q.explanation}</small></div>`;
+  } else {
+    byId('fb').innerHTML = `<div class="bad">✗ Correct: <b>${q.correct}</b><br><small>${q.explanation}</small></div>`;
+  }
+}
+
+function nextInterpretation() {
+  currentQ++;
+  interpretationMode();
+}
+
+// CALCULATION MODE
+function calculationMode() {
+  const scenario = SCENARIOS[currentQ % SCENARIOS.length];
+  
+  let html = '<div class="hint"><b>Calculation Practice</b><br>Calculate the requested metrics using the data provided</div>';
+  html += `<div class="scenario-box">${scenario.story}</div>`;
+  
+  html += '<div class="data-grid">';
+  for (let [key, val] of Object.entries(scenario.data)) {
+    html += `<div class="data-item"><div class="data-label">${key}</div><div class="data-value">${val}</div></div>`;
+  }
+  html += '</div>';
+  
+  html += '<div style="margin:16px 0">';
+  scenario.questions.forEach((q, i) => {
+    html += `<div class="calc-question">Calculate <b>${q.label}</b>: <input type="text" class="calc-input" id="calc_${i}" placeholder="Number" data-answer="${q.answer}" data-label="${q.label}" data-unit="${q.unit}" data-tolerance="${q.tolerance || 0}"> ${q.unit}</div>`;
+  });
+  html += '</div>';
+  
+  html += `<div class="row" style="justify-content:center"><button onclick="checkCalculation('${scenario.explanation}')">Check All</button><button onclick="nextCalculation()">Next</button></div>`;
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `Scenario ${currentQ + 1} of ${SCENARIOS.length}`;
+}
+
+function checkCalculation(explanation) {
+  const inputs = document.querySelectorAll('.calc-input');
+  let correct = 0;
+  let total = inputs.length;
+  let results = [];
+  
+  inputs.forEach(input => {
+    const answer = parseFloat(input.dataset.answer);
+    const tolerance = parseFloat(input.dataset.tolerance) || 0;
+    const value = parseFloat(input.value);
+    const label = input.dataset.label;
+    const unit = input.dataset.unit;
+    
+    if (!isNaN(value) && Math.abs(value - answer) <= tolerance) {
+      correct++;
+      input.style.borderColor = '#b7dfc5';
+      input.style.background = '#d4edda';
+      results.push(`${label}: ✓`);
+    } else {
+      input.style.borderColor = '#f1b0b7';
+      input.style.background = '#f8d7da';
+      results.push(`${label}: ✗ (${answer}${unit})`);
+    }
+  });
+  
+  if (correct === total) {
+    byId('fb').innerHTML = `<div class="good">✓ Perfect! All ${total} calculations correct!<br><small>${explanation}</small></div>`;
+  } else {
+    byId('fb').innerHTML = `<div class="bad">You got ${correct}/${total} correct.<br>${results.join(' | ')}<br><small>${explanation}</small></div>`;
+  }
+}
+
+function nextCalculation() {
+  currentQ++;
+  calculationMode();
+}
+
+// INITIALIZATION
+byId('start').onclick = () => {
+  currentQ = 0;
+  const mode = byId('mode').value;
+  byId('fb')?.remove();
+  
+  if (mode === 'matching') matchingMode();
+  else if (mode === 'formula') formulaMode();
+  else if (mode === 'mcq') mcqMode();
+  else if (mode === 'interpretation') interpretationMode();
+  else if (mode === 'calculation') calculationMode();
+};
+
+byId('darkToggle').onchange = e => {
+  document.body.classList.toggle('dark', e.target.checked);
+};
+
+// Start with matching mode
+matchingMode();
+</script>
+</body>
+</html>

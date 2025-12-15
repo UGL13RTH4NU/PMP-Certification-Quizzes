@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PMP Performance Domains Trainer</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' ry='12' fill='%232874A6'/><text x='50%' y='58%' text-anchor='middle' font-size='30' font-family='Verdana' fill='white'>8</text></svg>">
+<style>
+:root{
+  --accent:#2874A6;
+  --bg:#f6f7fb;--panel:#ffffff;--border:#dbe2ee;--text:#0a1522;--muted:#556273;--chip:#eef3f8;--dash:#cfd9e3;
+  --good:#155724;--goodbg:#d4edda;--bad:#7a1d1d;--badbg:#f8d7da;--warning:#856404;--warningbg:#fff3cd
+}
+.dark{--bg:#0c1015;--panel:#121a23;--border:#223042;--text:#e8edf3;--muted:#9ab0c6;--chip:#172233;--dash:#2a374b;--good:#69db7c;--goodbg:#0f1a12;--bad:#ff8787;--badbg:#1a0f10;--warning:#ffd43b;--warningbg:#1a1508}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;color:var(--text);background:var(--bg)}
+header{display:flex;gap:12px;align-items:center;padding:14px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:clamp(1.08rem,2.6vw,1.45rem);color:var(--accent)}
+main{max-width:1400px;margin:0 auto;padding:16px;display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:1100px){main{grid-template-columns:1fr 380px}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.card h2{margin:0;padding:12px 14px;border-bottom:1px solid var(--border);font-size:1.02rem}
+.card .content{padding:12px 14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+select,button,input{background:#fff;border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px}
+.dark select,.dark button,.dark input{background:#0f141b;border-color:#263244;color:#e9eef3}
+button{cursor:pointer;font-weight:600}
+button:hover{opacity:0.9}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:var(--chip);border:1px solid var(--border);font-size:.86rem}
+.muted{color:var(--muted);opacity:.95}
+.hint{background:var(--chip);border-left:3px solid var(--accent);padding:12px;border-radius:10px;margin-top:8px}
+.good{color:var(--good);background:var(--goodbg);padding:8px 10px;border-radius:10px;border:1px solid #b7dfc5}
+.bad{color:var(--bad);background:var(--badbg);padding:8px 10px;border-radius:10px;border:1px solid #f1b0b7}
+.warning{color:var(--warning);background:var(--warningbg);padding:8px 10px;border-radius:10px;border:1px solid #ffeaa7}
+.kbd{border:1px solid var(--border);background:var(--chip);border-radius:6px;padding:1px 6px;font-weight:700;font-size:.85rem}
+small{font-size:.86rem}
+hr{border:none;border-top:1px solid var(--border);margin:12px 0}
+.counter{margin-left:auto;color:var(--muted);font-size:.9rem}
+.fixed{position:sticky;top:72px;max-height:calc(100vh - 88px);overflow-y:auto}
+.progress-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;background:var(--accent);transition:width .3s}
+.stat-bar{background:var(--chip);border-radius:8px;padding:10px;margin:8px 0;border:1px solid var(--border)}
+.stat-label{font-weight:600;margin-bottom:4px}
+.stat-value{font-size:1.3rem;color:var(--accent)}
+
+/* Question Styles */
+.question-box{background:var(--chip);border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0;min-height:120px}
+.question-text{font-size:1.1rem;line-height:1.5;margin-bottom:12px}
+.domain-badge{display:inline-block;padding:6px 12px;border-radius:999px;font-size:.85rem;font-weight:600;margin:4px;background:var(--chip);border:1px solid var(--border)}
+
+/* Option Styles */
+.options{display:grid;gap:10px;margin-top:12px}
+.option{
+  padding:14px;
+  border:2px solid var(--border);
+  border-radius:10px;
+  cursor:pointer;
+  transition:all 0.2s;
+  background:var(--panel);
+  font-size:.95rem;
+}
+.option:hover{
+  border-color:var(--accent);
+  background:var(--chip);
+  transform:translateX(3px);
+}
+.option.selected{
+  border-color:var(--accent);
+  background:var(--chip);
+  border-width:2px;
+}
+.option.correct{
+  border-color:#b7dfc5;
+  background:var(--goodbg);
+  color:var(--good);
+  border-width:3px;
+}
+.option.incorrect{
+  border-color:#f1b0b7;
+  background:var(--badbg);
+  color:var(--bad);
+  border-width:3px;
+}
+
+/* Feedback */
+.feedback{
+  margin-top:16px;
+  padding:14px;
+  border-radius:10px;
+  line-height:1.5;
+}
+.next-btn{
+  margin-top:12px;
+  width:100%;
+  background:var(--accent);
+  color:white;
+  border:none;
+  padding:12px;
+  font-size:1rem;
+}
+.next-btn:hover{
+  opacity:0.9;
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎯 PMP Performance Domains Trainer</h1>
+  <div style="flex:1"></div>
+  <label class="pill"><input type="checkbox" id="darkToggle"> Dark mode</label>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Practice Modes</h2>
+    <div class="content">
+      <div class="row">
+        <label class="muted">Select Mode</label>
+        <select id="mode">
+          <optgroup label="Beginner">
+            <option value="identification">1️⃣ Domain Identification</option>
+            <option value="description">2️⃣ Domain Description Match</option>
+            <option value="key_activities">3️⃣ Key Activities Match</option>
+          </optgroup>
+          <optgroup label="Intermediate">
+            <option value="scenario">4️⃣ Scenario → Domain</option>
+            <option value="outcomes">5️⃣ Expected Outcomes</option>
+            <option value="interactions">6️⃣ Domain Interactions</option>
+          </optgroup>
+          <optgroup label="Advanced">
+            <option value="multi_domain">7️⃣ Multi-Domain Scenarios</option>
+            <option value="checking_results">8️⃣ Checking Results</option>
+          </optgroup>
+        </select>
+        <button id="start">Start / Reset</button>
+        <span id="counter" class="counter"></span>
+      </div>
+      <div id="work"></div>
+    </div>
+  </section>
+
+  <aside class="card fixed">
+    <h2>Reference & Stats</h2>
+    <div class="content">
+      <div class="hint">
+        <b style="color:#2874A6">📚 The 8 Performance Domains</b>
+        <div style="margin-top:10px;font-size:.88rem;line-height:1.6">
+          <div><b>1. Stakeholders</b> - Activities with stakeholders</div>
+          <div><b>2. Team</b> - People creating deliverables</div>
+          <div><b>3. Dev Approach & Life Cycle</b> - How work is organized</div>
+          <div><b>4. Planning</b> - Coordination of work</div>
+          <div><b>5. Project Work</b> - Processes and resources</div>
+          <div><b>6. Delivery</b> - Producing deliverables</div>
+          <div><b>7. Measurement</b> - Assessing performance</div>
+          <div><b>8. Uncertainty</b> - Risks and complexity</div>
+        </div>
+      </div>
+
+      <div class="hint" style="margin-top:10px">
+        <b>💡 Layer 2 of 3</b>
+        <p style="margin:8px 0 0 0;font-size:.88rem;line-height:1.5">
+          Performance Domains help you understand <strong>WHERE</strong> in the project system a problem impacts. This connects Knowledge Areas (WHAT) to Principles (HOW).
+        </p>
+      </div>
+
+      <hr>
+      
+      <div class="stat-bar">
+        <div class="stat-label">Questions Answered</div>
+        <div class="stat-value" id="totalAnswered">0</div>
+      </div>
+      
+      <div class="stat-bar">
+        <div class="stat-label">Correct (First Try)</div>
+        <div class="stat-value" id="totalCorrect">0</div>
+      </div>
+      
+      <div class="stat-bar">
+        <div class="stat-label">Accuracy</div>
+        <div class="stat-value" id="accuracy">0%</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="accuracyBar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="hint" style="margin-top:14px;background:var(--warningbg);border-color:var(--warning)">
+        <b>✨ Can Change Answers!</b><br>
+        <small>Click different options until you get it right. Only moves forward when correct.</small>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<script>
+// ===== Performance Domains Data =====
+const DOMAINS = [
+  {
+    name: "Stakeholders",
+    shortDesc: "Activities with stakeholders and their engagement",
+    fullDesc: "Addresses activities and functions associated with stakeholders. Effective stakeholder interaction contributes to successful project outcomes.",
+    keyActivities: [
+      "Identify stakeholders",
+      "Understand and analyze stakeholder needs",
+      "Prioritize stakeholders",
+      "Engage stakeholders",
+      "Monitor stakeholder engagement"
+    ],
+    outcomes: [
+      "Productive working relationship with stakeholders",
+      "Stakeholder agreement with project objectives",
+      "Supportive stakeholders who understand benefits",
+      "Support from impacted stakeholders"
+    ],
+    scenarios: [
+      "A key sponsor is not responding to project communications",
+      "Stakeholders have conflicting requirements for the project",
+      "The customer is dissatisfied with project progress",
+      "A new executive joins and wants to change project direction"
+    ],
+    interactsWith: ["Team", "Planning", "Project Work", "Delivery", "Uncertainty"],
+    checkingResults: "Productive working relationships, stakeholder agreement, understanding of benefits"
+  },
+  {
+    name: "Team",
+    shortDesc: "People creating deliverables and achieving outcomes",
+    fullDesc: "Deals with establishing culture and environment for individuals to evolve into a high-performing team. Includes fostering development and encouraging leadership.",
+    keyActivities: [
+      "Build and develop the project team",
+      "Define team agreements and ground rules",
+      "Foster a collaborative environment",
+      "Remove impediments",
+      "Demonstrate and adapt leadership behaviors"
+    ],
+    outcomes: [
+      "Shared ownership of project outcomes",
+      "High-performing team",
+      "Applicable leadership and interpersonal skills",
+      "Team members demonstrate leadership behaviors"
+    ],
+    scenarios: [
+      "Team members are in conflict about technical approach",
+      "A team member lacks the skills needed for their assignment",
+      "Remote team members feel disconnected from the project",
+      "Team morale is low due to project setbacks"
+    ],
+    interactsWith: ["Stakeholders", "Project Work", "Planning", "Delivery"],
+    checkingResults: "Shared ownership, high performance, effective leadership demonstrated"
+  },
+  {
+    name: "Development Approach and Life Cycle",
+    shortDesc: "How work is organized and delivered",
+    fullDesc: "Establishes the development approach, delivery cadence, and project life cycle needed to optimize outcomes. Determines if predictive, adaptive, or hybrid.",
+    keyActivities: [
+      "Select appropriate development approach",
+      "Determine delivery cadence",
+      "Define project phases and gates",
+      "Align approach with organizational governance",
+      "Tailor approach based on project context"
+    ],
+    outcomes: [
+      "Development approach fits the deliverable",
+      "Project life cycle optimizes delivery",
+      "Delivery cadence provides customer value",
+      "Development approach supports project objectives"
+    ],
+    scenarios: [
+      "Requirements are highly uncertain and will evolve",
+      "The organization requires stage gates for funding approval",
+      "Customers want to see working increments every 2 weeks",
+      "Regulatory requirements demand extensive documentation"
+    ],
+    interactsWith: ["Planning", "Delivery", "Uncertainty"],
+    checkingResults: "Approach fits deliverable, life cycle optimized, cadence provides value"
+  },
+  {
+    name: "Planning",
+    shortDesc: "Organization and coordination of work",
+    fullDesc: "Deals with initial, ongoing, and evolving organization and coordination necessary for delivering deliverables and outcomes. Planning varies by approach.",
+    keyActivities: [
+      "Organize and coordinate project work",
+      "Estimate schedule and costs",
+      "Define scope and requirements",
+      "Plan for resources and procurement",
+      "Establish baselines and metrics"
+    ],
+    outcomes: [
+      "Project progresses in organized and coordinated manner",
+      "Holistic approach to delivery",
+      "Evolving information elaborated to appropriate detail",
+      "Sufficient time spent planning",
+      "Planning information useful and sufficient"
+    ],
+    scenarios: [
+      "The team needs to estimate effort for upcoming work",
+      "Stakeholders want to know when the project will complete",
+      "Budget allocation needs to be determined",
+      "The project approach needs adjustment based on new information"
+    ],
+    interactsWith: ["All domains - Planning integrates with everything"],
+    checkingResults: "Organized progression, holistic approach, appropriate elaboration, useful information"
+  },
+  {
+    name: "Project Work",
+    shortDesc: "Processes, resources, and learning environment",
+    fullDesc: "Establishes project processes, manages physical resources, and fosters learning. Associated with enabling the team to deliver expected value.",
+    keyActivities: [
+      "Establish project processes",
+      "Manage physical resources",
+      "Work with procurements",
+      "Monitor new work and changes",
+      "Foster knowledge sharing and learning"
+    ],
+    outcomes: [
+      "Efficient and effective project performance",
+      "Suitable processes for the project",
+      "Appropriate communication with stakeholders",
+      "Effective management of resources",
+      "Increased team capability through knowledge transfer"
+    ],
+    scenarios: [
+      "Equipment needed for the project is delayed",
+      "A vendor is not meeting contract obligations",
+      "The team wants to improve their retrospective process",
+      "Project knowledge is not being captured for future use"
+    ],
+    interactsWith: ["Planning", "Delivery", "Measurement", "Team", "Stakeholders"],
+    checkingResults: "Efficient performance, suitable processes, effective communication, managed resources"
+  },
+  {
+    name: "Delivery",
+    shortDesc: "Meeting requirements and producing deliverables",
+    fullDesc: "Focuses on meeting requirements, scope, and quality expectations to produce expected deliverables that drive intended outcomes.",
+    keyActivities: [
+      "Deliver project outcomes and value",
+      "Manage quality requirements",
+      "Validate scope and get acceptance",
+      "Verify deliverables meet standards",
+      "Address defects and issues"
+    ],
+    outcomes: [
+      "Projects contribute to business objectives",
+      "Project realizes intended benefits",
+      "Team understands requirements",
+      "Stakeholders accept deliverables",
+      "Quality expectations met"
+    ],
+    scenarios: [
+      "A deliverable failed acceptance testing",
+      "The customer wants to verify a completed feature",
+      "Quality standards are not being met",
+      "A defect was found in production"
+    ],
+    interactsWith: ["Planning", "Project Work", "Measurement", "Stakeholders"],
+    checkingResults: "Business objectives advanced, benefits realized, requirements understood, deliverables accepted"
+  },
+  {
+    name: "Measurement",
+    shortDesc: "Assessing performance and taking corrective action",
+    fullDesc: "Involves assessing project performance and implementing appropriate responses to maintain optimal performance. Uses metrics and baselines.",
+    keyActivities: [
+      "Establish effective measures and metrics",
+      "Monitor progress against baselines",
+      "Present performance information",
+      "Troubleshoot performance issues",
+      "Implement corrective actions"
+    ],
+    outcomes: [
+      "Reliable understanding of project status",
+      "Actionable data for decision making",
+      "Timely and appropriate actions to keep project on track",
+      "Achievement of targets and objectives"
+    ],
+    scenarios: [
+      "The project is behind schedule and over budget",
+      "Earned Value metrics show declining performance",
+      "Stakeholders want a status update on project health",
+      "Velocity has dropped for three consecutive sprints"
+    ],
+    interactsWith: ["Planning", "Project Work", "Delivery", "Uncertainty"],
+    checkingResults: "Reliable status, actionable data, timely actions, targets achieved"
+  },
+  {
+    name: "Uncertainty",
+    shortDesc: "Navigating risks, ambiguity, and complexity",
+    fullDesc: "Projects exist in environments with varying uncertainty. Includes threats and opportunities that teams explore, assess, and handle. Covers risk, ambiguity, complexity, and volatility.",
+    keyActivities: [
+      "Identify and analyze risks",
+      "Develop risk responses",
+      "Navigate ambiguity and complexity",
+      "Manage volatility and change",
+      "Maintain risk awareness throughout project"
+    ],
+    outcomes: [
+      "Awareness of uncertain project environment",
+      "Exploration and navigation of uncertainty",
+      "Proactive approaches to uncertainty",
+      "Understanding of interrelationships in project",
+      "Opportunities maximized, threats minimized"
+    ],
+    scenarios: [
+      "A major risk has just materialized on the project",
+      "Requirements are vague and stakeholders are uncertain",
+      "Technology choices are complex with unclear impacts",
+      "Market conditions are volatile and unpredictable"
+    ],
+    interactsWith: ["Planning", "Project Work", "Delivery", "Measurement"],
+    checkingResults: "Awareness of environment, uncertainty explored, proactive approaches, opportunities exploited"
+  }
+];
+
+const IDENTIFICATION_QUESTIONS = [
+  { question: "Which domain focuses on building productive relationships with all project participants?", answer: "Stakeholders" },
+  { question: "Which domain addresses creating a high-performing team environment?", answer: "Team" },
+  { question: "Which domain determines whether to use predictive, adaptive, or hybrid approaches?", answer: "Development Approach and Life Cycle" },
+  { question: "Which domain involves estimating, scheduling, and budgeting?", answer: "Planning" },
+  { question: "Which domain manages physical resources and procurements?", answer: "Project Work" },
+  { question: "Which domain ensures deliverables meet quality requirements and acceptance criteria?", answer: "Delivery" },
+  { question: "Which domain uses metrics and baselines to track performance?", answer: "Measurement" },
+  { question: "Which domain addresses risks, ambiguity, complexity, and volatility?", answer: "Uncertainty" }
+];
+
+// ===== State =====
+let currentMode = 'identification';
+let currentQuestionIndex = 0;
+let stats = { answered: 0, correct: 0, attempts: 0 };
+let questions = [];
+let currentCorrectAnswer = '';
+let hasAnsweredCorrectly = false;
+
+// ===== Utilities =====
+function shuffle(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function updateStats() {
+  document.getElementById('totalAnswered').textContent = stats.answered;
+  document.getElementById('totalCorrect').textContent = stats.correct;
+  const accuracy = stats.answered === 0 ? 0 : Math.round((stats.correct / stats.answered) * 100);
+  document.getElementById('accuracy').textContent = accuracy + '%';
+  document.getElementById('accuracyBar').style.width = accuracy + '%';
+}
+
+function updateCounter() {
+  document.getElementById('counter').textContent = 
+    `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+}
+
+// ===== Question Generators =====
+function generateIdentificationQuestion() {
+  const q = questions[currentQuestionIndex];
+  const allDomains = DOMAINS.map(d => d.name);
+  const options = shuffle(allDomains);
+  currentCorrectAnswer = q.answer;
+  
+  return {
+    html: `
+      <div class="question-box">
+        <div class="question-text">${q.question}</div>
+      </div>
+      <div class="options">
+        ${options.map(opt => `
+          <div class="option" data-answer="${opt}">
+            ${opt}
+          </div>
+        `).join('')}
+      </div>
+    `,
+    correctAnswer: q.answer
+  };
+}
+
+function generateDescriptionMatch() {
+  const domain = DOMAINS[currentQuestionIndex % DOMAINS.length];
+  const allDescs = shuffle(DOMAINS.map(d => ({ name: d.name, desc: d.fullDesc })));
+  currentCorrectAnswer = domain.name;
+  
+  return {
+    html: `
+      <div class="question-box">
+        <div class="question-text">Which description matches the <strong>${domain.name}</strong> Performance Domain?</div>
+      </div>
+      <div class="options">
+        ${allDescs.slice(0, 4).map(opt => `
+          <div class="option" data-answer="${opt.name}">
+            ${opt.desc}
+          </div>
+        `).join('')}
+      </div>
+    `,
+    correctAnswer: domain.name
+  };
+}
+
+function generateKeyActivitiesMatch() {
+  const domain = DOMAINS[currentQuestionIndex % DOMAINS.length];
+  const activity = domain.keyActivities[Math.floor(Math.random() * domain.keyActivities.length)];
+  const options = shuffle(DOMAINS.map(d => d.name));
+  currentCorrectAnswer = domain.name;
+  
+  return {
+    html: `
+      <div class="question-box">
+        <div class="question-text">Which domain includes this key activity?<br><br>
+        <strong>"${activity}"</strong></div>
+      </div>
+      <div class="options">
+        ${options.map(opt => `
+          <div class="option" data-answer="${opt}">
+            ${opt}
+          </div>
+        `).join('')}
+      </div>
+    `,
+    correctAnswer: domain.name
+  };
+}
+
+function generateScenarioQuestion() {
+  const domain = DOMAINS[currentQuestionIndex % DOMAINS.length];
+  const scenario = domain.scenarios[Math.floor(Math.random() * domain.scenarios.length)];
+  const options = shuffle(DOMAINS.map(d => d.name));
+  currentCorrectAnswer = domain.name;
+  
+  return {
+    html: `
+      <div class="question-box">
+        <div class="question-text"><strong>Scenario:</strong> ${scenario}<br><br>
+        Which Performance Domain is PRIMARILY impacted?</div>
+      </div>
+      <div class="options">
+        ${options.map(opt => `
+          <div class="option" data-answer="${opt}">
+            ${opt}
+          </div>
+        `).join('')}
+      </div>
+    `,
+    correctAnswer: domain.name
+  };
+}
+
+function generateOutcomesQuestion() {
+  const domain = DOMAINS[currentQuestionIndex % DOMAINS.length];
+  const outcome = domain.outcomes[Math.floor(Math.random() * domain.outcomes.length)];
+  const options = shuffle(DOMAINS.map(d => d.name));
+  currentCorrectAnswer = domain.name;
+  
+  return {
+    html: `
+      <div class="question-box">
+        <div class="question-text">Which domain aims to achieve this outcome?<br><br>
+        <strong>"${outcome}"</strong></div>
+      </div>
+      <div class="options">
+        ${options.map(opt => `
+          <div class="option" data-answer="${opt}">
+            ${opt}
+          </div>
+        `).join('')}
+      </div>
+    `,
+    correctAnswer: domain.name
+  };
+}
+
+function generateInteractionsQuestion() {
+  const domain = DOMAINS[currentQuestionIndex % DOMAINS.length];
+  const domainNames = DOMAINS.map(d => d.name).filter(n => n !== domain.name);
+  const correctInteraction = domain.interactsWith[0];
+  const wrongOptions = domainNames.filter(n => !domain.interactsWith.includes(n));
+  const options = shuffle([correctInteraction, ...wrongOptions.slice(0, 3)]);
+  currentCorrectAnswer = correctInteraction;
+  
+  return {
+    html: `
+      <div class="question-box">
+        <div class="question-text">The <strong>${domain.name}</strong> Performance Domain interacts with which other domain?</div>
+      </div>
+      <div class="options">
+        ${options.map(opt => `
+          <div class="option" data-answer="${opt}">
+            ${opt}
+          </div>
+        `).join('')}
+      </div>
+    `,
+    correctAnswer: correctInteraction
+  };
+}
+
+function generateMultiDomainQuestion() {
+  const scenarios = [
+    { text: "The team is behind schedule, stakeholders are concerned, and quality is suffering.", domains: ["Measurement", "Stakeholders", "Delivery"], primary: "Measurement" },
+    { text: "A new team member needs training, but this will delay deliverables.", domains: ["Team", "Delivery", "Planning"], primary: "Team" },
+    { text: "Customer requirements are unclear, and the market is volatile.", domains: ["Stakeholders", "Uncertainty", "Planning"], primary: "Uncertainty" },
+    { text: "The team wants to switch from waterfall to agile iterations.", domains: ["Development Approach and Life Cycle", "Team", "Planning"], primary: "Development Approach and Life Cycle" }
+  ];
+  
+  const scenario = scenarios[currentQuestionIndex % scenarios.length];
+  const options = shuffle(DOMAINS.map(d => d.name));
+  currentCorrectAnswer = scenario.primary;
+  
+  return {
+    html: `
+      <div class="question-box">
+        <div class="question-text"><strong>Complex Scenario:</strong> ${scenario.text}<br><br>
+        Which domain should be the PRIMARY focus?</div>
+        <div style="margin-top: 12px;">
+          ${scenario.domains.map(d => `<span class="domain-badge">${d}</span>`).join('')}
+        </div>
+      </div>
+      <div class="options">
+        ${options.slice(0, 4).map(opt => `
+          <div class="option" data-answer="${opt}">
+            ${opt}
+          </div>
+        `).join('')}
+      </div>
+    `,
+    correctAnswer: scenario.primary
+  };
+}
+
+function generateCheckingResultsQuestion() {
+  const domain = DOMAINS[currentQuestionIndex % DOMAINS.length];
+  const checkResults = domain.checkingResults.split(',')[0].trim();
+  const options = shuffle(DOMAINS.map(d => d.name));
+  currentCorrectAnswer = domain.name;
+  
+  return {
+    html: `
+      <div class="question-box">
+        <div class="question-text">To check if this outcome is being achieved:<br><br>
+        <strong>"${checkResults}"</strong><br><br>
+        Which domain would you assess?</div>
+      </div>
+      <div class="options">
+        ${options.map(opt => `
+          <div class="option" data-answer="${opt}">
+            ${opt}
+          </div>
+        `).join('')}
+      </div>
+    `,
+    correctAnswer: domain.name
+  };
+}
+
+// ===== Answer Handling =====
+function handleAnswer(selectedAnswer) {
+  stats.attempts++;
+  const isCorrect = selectedAnswer === currentCorrectAnswer;
+  
+  // Update the clicked option's appearance
+  const options = document.querySelectorAll('.option');
+  options.forEach(opt => {
+    // Remove previous selected class from all
+    opt.classList.remove('selected');
+    
+    // Add selected to the clicked one
+    if (opt.dataset.answer === selectedAnswer) {
+      opt.classList.add('selected');
+      
+      if (isCorrect) {
+        opt.classList.add('correct');
+        opt.classList.remove('incorrect');
+      } else {
+        opt.classList.add('incorrect');
+        opt.classList.remove('correct');
+      }
+    }
+  });
+  
+  // If correct and first time, update stats
+  if (isCorrect && !hasAnsweredCorrectly) {
+    stats.answered++;
+    stats.correct++;
+    hasAnsweredCorrectly = true;
+    updateStats();
+    showSuccessFeedback();
+  } else if (!isCorrect) {
+    showTryAgainFeedback();
+  }
+}
+
+function showTryAgainFeedback() {
+  // Remove any existing feedback
+  const existingFeedback = document.querySelector('.feedback');
+  if (existingFeedback) existingFeedback.remove();
+  
+  const feedback = `
+    <div class="feedback bad">
+      <strong>❌ Not quite!</strong> Try another answer.
+    </div>
+  `;
+  
+  document.getElementById('work').insertAdjacentHTML('beforeend', feedback);
+}
+
+function showSuccessFeedback() {
+  // Remove any existing feedback
+  const existingFeedback = document.querySelector('.feedback');
+  if (existingFeedback) existingFeedback.remove();
+  
+  const domainInfo = DOMAINS.find(d => d.name === currentCorrectAnswer);
+  const feedback = `
+    <div class="feedback good">
+      <strong>✅ Correct!</strong><br>
+      <strong>${currentCorrectAnswer}</strong> Performance Domain<br>
+      ${domainInfo ? domainInfo.fullDesc : ''}
+    </div>
+    <button class="next-btn" onclick="nextQuestion()">Next Question →</button>
+  `;
+  
+  document.getElementById('work').insertAdjacentHTML('beforeend', feedback);
+  
+  // Disable all options
+  document.querySelectorAll('.option').forEach(opt => {
+    opt.style.pointerEvents = 'none';
+  });
+}
+
+// ===== Display Question =====
+function displayQuestion() {
+  updateCounter();
+  hasAnsweredCorrectly = false;
+  
+  let questionData;
+  
+  switch(currentMode) {
+    case 'identification':
+      questionData = generateIdentificationQuestion();
+      break;
+    case 'description':
+      questionData = generateDescriptionMatch();
+      break;
+    case 'key_activities':
+      questionData = generateKeyActivitiesMatch();
+      break;
+    case 'scenario':
+      questionData = generateScenarioQuestion();
+      break;
+    case 'outcomes':
+      questionData = generateOutcomesQuestion();
+      break;
+    case 'interactions':
+      questionData = generateInteractionsQuestion();
+      break;
+    case 'multi_domain':
+      questionData = generateMultiDomainQuestion();
+      break;
+    case 'checking_results':
+      questionData = generateCheckingResultsQuestion();
+      break;
+  }
+  
+  document.getElementById('work').innerHTML = questionData.html;
+  
+  // Add click handlers
+  document.querySelectorAll('.option').forEach(opt => {
+    opt.addEventListener('click', function() {
+      handleAnswer(this.dataset.answer);
+    });
+  });
+}
+
+function nextQuestion() {
+  currentQuestionIndex++;
+  if (currentQuestionIndex >= questions.length) {
+    currentQuestionIndex = 0;
+    questions = shuffle(questions);
+  }
+  displayQuestion();
+}
+
+function startQuiz() {
+  currentMode = document.getElementById('mode').value;
+  currentQuestionIndex = 0;
+  
+  if (currentMode === 'identification') {
+    questions = shuffle([...IDENTIFICATION_QUESTIONS]);
+  } else {
+    questions = shuffle(DOMAINS.map((d, i) => ({ domain: d, index: i })));
+  }
+  
+  displayQuestion();
+}
+
+// ===== Event Listeners =====
+document.getElementById('start').addEventListener('click', startQuiz);
+
+// Dark mode toggle
+document.getElementById('darkToggle').addEventListener('change', function() {
+  document.body.classList.toggle('dark', this.checked);
+});
+
+// Initialize
+updateStats();
+startQuiz();
+</script>
+</body>
+</html>

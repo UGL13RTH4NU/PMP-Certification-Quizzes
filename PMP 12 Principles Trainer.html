@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PMP Principles Trainer</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<style>
+:root{
+  --accent:#2874A6; /* user's preferred blue */
+  --bg:#f6f7fb;--panel:#ffffff;--border:#dbe2ee;--text:#0a1522;--muted:#556273;--chip:#eef3f8;--dash:#cfd9e3;
+  --good:#155724;--goodbg:#d4edda;--bad:#7a1d1d;--badbg:#f8d7da
+}
+.dark{--bg:#0c1015;--panel:#121a23;--border:#223042;--text:#e8edf3;--muted:#9ab0c6;--chip:#172233;--dash:#2a374b;--good:#69db7c;--goodbg:#0f1a12;--bad:#ff8787;--badbg:#1a0f10}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;color:var(--text);background:var(--bg)}
+header{display:flex;gap:12px;align-items:center;padding:14px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:clamp(1.08rem,2.6vw,1.45rem);color:var(--accent)}
+main{max-width:1200px;margin:0 auto;padding:16px;display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:980px){main{grid-template-columns:1fr 420px}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.card h2{margin:0;padding:12px 14px;border-bottom:1px solid var(--border);font-size:1.02rem}
+.card .content{padding:12px 14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+select,button,input{background:#fff;border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px}
+.dark select,.dark button,.dark input{background:#0f141b;border-color:#263244;color:#e9eef3}
+button{cursor:pointer;font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:var(--chip);border:1px solid var(--border);font-size:.86rem}
+.muted{color:var(--muted);opacity:.95}
+.hint{background:var(--chip);border-left:3px solid var(--accent);padding:12px;border-radius:10px;margin-top:8px}
+.good{color:var(--good);background:var(--goodbg);padding:8px 10px;border-radius:10px;border:1px solid #b7dfc5}
+.bad{color:var(--bad);background:var(--badbg);padding:8px 10px;border-radius:10px;border:1px solid #f1b0b7}
+.kbd{border:1px solid var(--border);background:var(--chip);border-radius:6px;padding:1px 6px;font-weight:700}
+.table{width:100%;border-collapse:separate;border-spacing:0 8px}.table td{background:var(--panel);border:1px solid var(--border);padding:8px;border-radius:10px;vertical-align:top}
+small{font-size:.86rem}
+.drags,.drops{display:grid;gap:10px}
+.drags{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.drag{padding:10px;border:1px dashed var(--dash);border-radius:10px;background:#fff;cursor:grab;text-align:center}
+.dark .drag{background:#0f141b}
+.drop{min-height:72px;border:1px dashed var(--dash);border-radius:10px;background:#fff;padding:8px;display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px}
+.dark .drop{background:#0f141b}
+.tag{font-size:.85rem;background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:4px 10px;cursor:grab}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--chip);border:1px solid var(--border);padding:2px 6px;border-radius:6px}
+hr{border:none;border-top:1px solid var(--border);margin:12px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>PMP — 12 Principles Trainer</h1>
+  <div style="flex:1"></div>
+  <label class="pill"><input type="checkbox" id="darkToggle"> Dark mode</label>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Practice</h2>
+    <div class="content">
+      <div class="row">
+        <label class="muted">Mode</label>
+        <select id="mode">
+          <option value="mcq_def_to_label">MCQ: Description → Principle</option>
+          <option value="mcq_label_to_example">MCQ: Principle → Example</option>
+          <option value="drag_match">Drag: Match Labels ↔ Descriptions</option>
+          <option value="scenario_picker">Scenario: Pick the Principle</option>
+        </select>
+        <button id="start">Start / Reset</button>
+      </div>
+      <div id="work"></div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <h2>Quick Reference</h2>
+    <div class="content">
+      <div class="hint">
+        <b>12 Project Management Principles</b><br>
+        <small>(Paraphrased from PMBOK® Guide, Seventh Edition)</small>
+      </div>
+      <table class="table" id="refTable"></table>
+      <div class="hint">
+        <b>Tips</b>
+        <ul>
+          <li><b style="color:#2874A6">No special order</b> — they work together.</li>
+          <li>Look for keywords: stewardship, value, stakeholders, tailoring, quality, complexity, risk, change.</li>
+          <li>“What should you do <i>next</i>?” → often engage stakeholders, focus on value, or tailor by context.</li>
+        </ul>
+      </div>
+      <p class="muted">Shortcuts: <span class="kbd">R</span> reshuffle, <span class="kbd">Enter</span> check/next.</p>
+    </div>
+  </aside>
+</main>
+
+<script>
+// ===== Dataset: 12 PMP Principles (labels + concise descriptions + simple examples) =====
+// Paraphrased to avoid long verbatim quotes; aligned to PMBOK® Guide, Seventh Edition.
+const PRINCIPLES = [
+  {key:"STEWARD", label:"1. Be a diligent, respectful, and caring steward",
+   desc:"Uphold ethics; responsibly manage resources, authority, and long‑term organizational value.",
+   ex:["Protects team wellbeing when re-baselining schedule","Escalates a conflict only after private attempts to resolve","Refuses to cut safety steps to hit a date"]},
+  {key:"TEAM", label:"2. Create a collaborative project team environment",
+   desc:"Build trust, safety, and shared ownership so the team can perform and improve.",
+   ex:["Facilitates team working agreements","Removes blockers and fosters psychological safety","Encourages self‑organization on tasks"]},
+  {key:"STAKE", label:"3. Effectively engage with stakeholders",
+   desc:"Identify, analyze, and continuously engage stakeholders to align expectations and gain support.",
+   ex:["Maps stakeholders and tailors communications","Runs demos to gather feedback","Adjusts plan after understanding concerns"]},
+  {key:"VALUE", label:"4. Focus on value",
+   desc:"Make decisions to maximize outcomes and benefits — not just outputs or activity.",
+   ex:["Prioritizes scope by business impact","Delivers MVP early to realize benefits","Stops low‑value work"]},
+  {key:"SYSTEMS", label:"5. Recognize, evaluate, and respond to system interactions",
+   desc:"Think in systems; anticipate ripple effects, feedback loops, and dependencies.",
+   ex:["Examines upstream policy impacts before changing a process","Aligns project with portfolio strategy","Coordinates cross‑team dependencies"]},
+  {key:"LEAD", label:"6.Demonstrate leadership behaviors",
+   desc:"Model integrity, empathy, and servant leadership; influence without relying on authority.",
+   ex:["Coaches rather than commands","Owns mistakes and sets a learning tone","Tailors leadership style to context"]},
+  {key:"TAILOR", label:"7. Tailor based on context",
+   desc:"Adapt methods, life cycle, and artifacts to the project environment — avoid one‑size‑fits‑all.",
+   ex:["Chooses hybrid approach for regulatory product","Right‑sizes documentation","Adjusts cadence to uncertainty level"]},
+  {key:"QUALITY", label:"8. Build quality into processes and deliverables",
+   desc:"Prevent defects with fit‑for‑use practices, acceptance criteria, and continuous verification.",
+   ex:["Defines Definition of Done","Implements peer reviews and test automation","Uses checklists to prevent escapes"]},
+  {key:"COMPLEX", label:"9. Navigate complexity",
+   desc:"Probe, sense, and respond to ambiguity; simplify where possible and learn iteratively.",
+   ex:["Runs spikes/prototypes to reduce ambiguity","Limits WIP and visualizes flow","Breaks work into small experiments"]},
+  {key:"RISK", label:"10. Optimize risk responses",
+   desc:"Continually identify, analyze, and treat threats and opportunities to improve outcomes.",
+   ex:["Escalates systemic risks via governance","Reserves for high‑impact threats","Exploits a favorable vendor discount"]},
+  {key:"ADAPT", label:"11. Embrace adaptability and resiliency",
+   desc:"Design ways of working that can pivot, absorb change, and recover quickly.",
+   ex:["Builds slack and options into plans","Keeps cross‑functional skills on the team","Uses retrospectives to adapt"]},
+  {key:"CHANGE", label:"12. Enable change to achieve the envisioned future state",
+   desc:"Prepare people for change; align to vision; implement and sustain adoption.",
+   ex:["Creates a change plan and comms","Engages sponsors and champions","Measures adoption and reinforces"]},
+];
+
+// Quick reference table
+function buildRef(){
+  const t = document.getElementById('refTable'); t.innerHTML="";
+  PRINCIPLES.forEach(p=>{
+    const tr=document.createElement('tr');
+    const l=document.createElement('td'); l.innerHTML=`<b>${p.label}</b>`; tr.appendChild(l);
+    const r=document.createElement('td'); r.innerHTML=`<small>${p.desc}</small>`; tr.appendChild(r);
+    t.appendChild(tr);
+  });
+}
+
+// Helpers
+const byId = id => document.getElementById(id);
+const shuffle = a => a.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+const choice = a => a[Math.floor(Math.random()*a.length)];
+const isTyping = el => { if(!el) return false; const t=(el.tagName||'').toLowerCase(); return el.isContentEditable||t==='input'||t==='textarea'||t==='select'; };
+
+// Mode: MCQ Description → Principle label
+function mcqDefToLabel(){
+  const w = byId('work');
+  const p = choice(PRINCIPLES);
+  const prompt = p.desc;
+  let options = shuffle(PRINCIPLES.map(x=>x.label)).slice(0,3);
+  if(!options.includes(p.label)) options[0]=p.label;
+  w.innerHTML = `<div class="hint">Which principle best matches this description?<br><i>${prompt}</i></div>
+  <div class="row" style="margin-top:10px">${shuffle(options).map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join('')}</div>
+  <div id="fb"></div><div class="row"><button id="enterAction">Next</button></div>`;
+  w.querySelectorAll('.opt').forEach(b=>b.onclick=e=>{
+    byId('fb').innerHTML=(e.currentTarget.dataset.v===p.label)?`<div class="good">✓ Correct</div>`:`<div class="bad">Correct: <b>${p.label}</b></div>`;
+  });
+  byId('enterAction').onclick=()=>mcqDefToLabel();
+}
+
+// Mode: MCQ Principle → pick an example
+function mcqLabelToExample(){
+  const w = byId('work');
+  const p = choice(PRINCIPLES);
+  const correct = choice(p.ex);
+  // Collect distractors from other principles
+  let pool = PRINCIPLES.filter(x=>x!==p).flatMap(x=>x.ex);
+  let options = shuffle([correct, ...shuffle(pool).slice(0,3)]);
+  w.innerHTML = `<div class="hint">Which action <b>best exemplifies</b> the principle <span class="code">${p.label}</span>?</div>
+  <div class="row" style="margin-top:10px">${options.map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join('')}</div>
+  <div id="fb"></div><div class="row"><button id="enterAction">Next</button></div>`;
+  w.querySelectorAll('.opt').forEach(b=>b.onclick=e=>{
+    byId('fb').innerHTML=(e.currentTarget.dataset.v===correct)?`<div class="good">✓ Correct</div>`:`<div class="bad">One good example: <b>${correct}</b></div>`;
+  });
+  byId('enterAction').onclick=()=>mcqLabelToExample();
+}
+
+// Mode: Drag & drop label ↔ description
+function dragMatch(){
+  const w = byId('work');
+  const picks = shuffle(PRINCIPLES).slice(8); // manageable set
+  w.innerHTML = `<p class="muted">Drag each <b>principle label</b> onto its correct <b>description</b>. Click a placed chip to send it back.</p>
+  <div class="drags">${picks.map(p=>`<div class="drag" draggable="true" data-key="${p.key}">${p.label}</div>`).join('')}</div>
+  <div class="drops" style="margin-top:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+    ${picks.map(p=>`<div class="drop" data-key="${p.key}"><small>${p.desc}</small></div>`).join('')}
+  </div>
+  <div class="row" style="margin-top:12px"><button id="check">Check</button><button id="clearMarks">Clear marks</button><button id="again">Shuffle</button></div>
+  <div id="fb"></div>`;
+  hookDnD(w,false);
+  byId('again').onclick=()=>dragMatch();
+}
+
+// Scenario bank
+const SCENARIOS = [
+  // Stewardship
+  {text:"A senior leader presses you to skip a mandatory safety gate to recover schedule. What principle guides your response?", key:"STEWARD"},
+  {text:"Budget pressure tempts the team to underpay a subcontractor. Which principle reminds you to ensure fair treatment?", key:"STEWARD"},
+  // Team
+  {text:"Velocity is dropping and blame is rising. You facilitate a working‑agreement session to reset norms. Which principle is this?", key:"TEAM"},
+  {text:"You reorganize work to remove single‑points‑of‑failure and encourage shared ownership. Which principle fits?", key:"TEAM"},
+  // Stakeholders
+  {text:"A powerful stakeholder opposes the new process. You plan targeted engagement and a demo to address concerns. Principle?", key:"STAKE"},
+  {text:"Customer use cases are unclear. You schedule discovery interviews and adjust your communication plan. Principle?", key:"STAKE"},
+  // Value
+  {text:"Two features are equally easy to build, but one drives higher benefits. You prioritize that one. Principle?", key:"VALUE"},
+  {text:"You recommend canceling a low‑value workstream to free capacity for higher ROI items. Principle?", key:"VALUE"},
+  // Systems thinking
+  {text:"A policy change in operations will alter support costs. You analyze impacts across portfolio and project. Principle?", key:"SYSTEMS"},
+  {text:"A quick fix in one module will overload a downstream team. You consider feedback loops before deciding. Principle?", key:"SYSTEMS"},
+  // Leadership behaviors
+  {text:"A mistake you made delayed testing. You own it publicly and focus the team on recovery and learning. Principle?", key:"LEAD"},
+  {text:"An expert is new and unsure. You coach and adapt your style rather than command. Principle?", key:"LEAD"},
+  // Tailoring
+  {text:"Regulatory documentation is heavy, but requirements are volatile. You choose a hybrid life cycle. Principle?", key:"TAILOR"},
+  {text:"The team drops unnecessary templates that add no value and keeps a slim set that works. Principle?", key:"TAILOR"},
+  // Quality
+  {text:"Defects keep escaping to production. You add peer reviews and expand automated tests. Principle?", key:"QUALITY"},
+  {text:"Before starting a work item, the team confirms acceptance criteria and Definition of Done. Principle?", key:"QUALITY"},
+  // Complexity
+  {text:"Ambiguity is high. You run a short spike to learn and reduce uncertainty. Principle?", key:"COMPLEX"},
+  {text:"You visualize flow and limit WIP to reduce cognitive overload. Principle?", key:"COMPLEX"},
+  // Risk
+  {text:"Supplier insolvency risk emerges. You create reserves and a qualified second source. Principle?", key:"RISK"},
+  {text:"A new tax credit could advance the schedule. You act to capture the opportunity. Principle?", key:"RISK"},
+  // Adaptability & resiliency
+  {text:"A platform API deprecates unexpectedly. Your architecture and plan absorb the change with minimal disruption. Principle?", key:"ADAPT"},
+  {text:"After an outage, the team conducts a blameless post‑mortem and adjusts the way of working. Principle?", key:"ADAPT"},
+  // Change enablement
+  {text:"Rollout is at risk because users aren’t prepared. You partner with sponsors and launch a change plan. Principle?", key:"CHANGE"},
+  {text:"You measure adoption metrics after go‑live and reinforce behaviors. Principle?", key:"CHANGE"},
+];
+
+// Mode: Scenario picker
+function scenarioPicker(){
+  const w = byId('work');
+  const s = choice(SCENARIOS);
+  const options = shuffle(PRINCIPLES.map(p=>p.label)).slice(0,4);
+  const correctLabel = PRINCIPLES.find(p=>p.key===s.key).label;
+  if(!options.includes(correctLabel)) options[0]=correctLabel;
+  w.innerHTML = `<div class="hint">${s.text}</div>
+  <div class="row" style="margin-top:10px">${shuffle(options).map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join('')}</div>
+  <div id="fb"></div><div class="row"><button id="enterAction">Next</button></div>`;
+  w.querySelectorAll('.opt').forEach(b=>b.onclick=e=>{
+    byId('fb').innerHTML=(e.currentTarget.dataset.v===correctLabel)?`<div class="good">✓ Correct</div>`:`<div class="bad">Best fit: <b>${correctLabel}</b></div>`;
+  });
+  byId('enterAction').onclick=()=>scenarioPicker();
+}
+
+// Shared drag-n-drop helper
+function hookDnD(scope, useExpect=false){
+  const bank = scope.querySelector('.drags');
+  scope.querySelectorAll('.drag').forEach(el=>{
+    el.addEventListener('dragstart',e=>{
+      const payload = useExpect ? {expect:el.dataset.expect, text:el.textContent} : {key:el.dataset.key, text:el.textContent};
+      e.dataTransfer.setData('text/plain', JSON.stringify(payload));
+    });
+  });
+  const makeChip=(data)=>{
+    const chip=document.createElement('div'); chip.className='tag'; chip.textContent=data.text;
+    if(useExpect) chip.dataset.expect=data.expect; else chip.dataset.key=data.key;
+    chip.setAttribute('draggable','true');
+    chip.addEventListener('dragstart',e=>{ chip.dataset.__dragging='1'; e.dataTransfer.setData('text/plain', JSON.stringify(data)); });
+    chip.addEventListener('dragend',()=>{ delete chip.dataset.__dragging; });
+    chip.addEventListener('click',()=>{ chip.style.background=''; chip.style.borderColor=''; bank.appendChild(chip); });
+    return chip;
+  };
+  scope.querySelectorAll('.drop').forEach(el=>{
+    el.addEventListener('dragover',e=>e.preventDefault());
+    el.addEventListener('drop',e=>{
+      e.preventDefault();
+      const d = JSON.parse(e.dataTransfer.getData('text/plain')||'{}');
+      const moving = scope.querySelector('.drop .tag[data-__dragging="1"]');
+      let node;
+      if(moving){ node = moving; }
+      else { node = makeChip(d); }
+      node.style.background=''; node.style.borderColor='';
+      el.appendChild(node);
+    });
+  });
+  bank.addEventListener('dragover',e=>e.preventDefault());
+  bank.addEventListener('drop',e=>{
+    e.preventDefault();
+    const dragging = scope.querySelector('.drop .tag[data-__dragging="1"]');
+    if(dragging){ dragging.style.background=''; dragging.style.borderColor=''; bank.appendChild(dragging); }
+  });
+  const check=byId('check');
+  if(check) check.onclick=()=>{
+    let c=0,t=0;
+    scope.querySelectorAll('.drop').forEach(el=>{
+      const want = useExpect ? el.dataset.k : el.dataset.key;
+      el.querySelectorAll('.tag').forEach(tag=>{
+        t++; const ok = useExpect ? (tag.dataset.expect===want) : (tag.dataset.key===want);
+        tag.style.borderColor = ok ? '#b7dfc5' : '#f1b0b7';
+        tag.style.background = ok ? '#d4edda' : '#f8d7da';
+        if(ok) c++;
+      });
+    });
+    const fb = byId('fb');
+    if(fb) fb.innerHTML = (c===t) ? `<div class="good">✓ Perfect! ${c}/${t}</div>` : `<div class="bad">${c}/${t} correct.</div>`;
+  };
+  const clearBtn=byId('clearMarks');
+  if(clearBtn) clearBtn.onclick=()=>{
+    scope.querySelectorAll('.drop .tag').forEach(tag=>{ tag.style.background=''; tag.style.borderColor=''; });
+    const fb = byId('fb'); if(fb) fb.innerHTML='';
+  };
+}
+
+// Controls
+byId('darkToggle').onchange=()=>document.body.classList.toggle('dark', byId('darkToggle').checked);
+byId('start').onclick=()=>render();
+byId('mode').onchange=render;
+document.addEventListener('keydown',e=>{ if(isTyping(document.activeElement)) return; if(e.key.toLowerCase()==='r') render(); if(e.key==='Enter'){ const b=byId('enterAction'); if(b) b.click(); }});
+
+// Render
+function render(){
+  const mode = byId('mode').value;
+  const w = byId('work'); w.innerHTML="";
+  buildRef();
+  if(mode==='mcq_def_to_label') mcqDefToLabel();
+  else if(mode==='mcq_label_to_example') mcqLabelToExample();
+  else if(mode==='drag_match') dragMatch();
+  else scenarioPicker();
+}
+
+// init
+render();
+</script>
+</body>
+</html>

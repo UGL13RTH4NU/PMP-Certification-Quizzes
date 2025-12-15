@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PMP Risk Responses Trainer</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<style>
+:root{
+  --accent:#2874A6;
+  --bg:#f6f7fb;--panel:#ffffff;--border:#dbe2ee;--text:#0a1522;--muted:#556273;--chip:#eef3f8;--dash:#cfd9e3;
+  --good:#155724;--goodbg:#d4edda;--bad:#7a1d1d;--badbg:#f8d7da
+}
+.dark{--bg:#0c1015;--panel:#121a23;--border:#223042;--text:#e8edf3;--muted:#9ab0c6;--chip:#172233;--dash:#2a374b;--good:#69db7c;--goodbg:#0f1a12;--bad:#ff8787;--badbg:#1a0f10}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;color:var(--text);background:var(--bg)}
+header{display:flex;gap:12px;align-items:center;padding:14px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:clamp(1.08rem,2.6vw,1.45rem);color:var(--accent)}
+main{max-width:1200px;margin:0 auto;padding:16px;display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:980px){main{grid-template-columns:1fr 420px}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.card h2{margin:0;padding:12px 14px;border-bottom:1px solid var(--border);font-size:1.02rem}
+.card .content{padding:12px 14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+select,button,input{background:#fff;border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px}
+.dark select,.dark button,.dark input{background:#0f141b;border-color:#263244;color:#e9eef3}
+button{cursor:pointer;font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:var(--chip);border:1px solid var(--border);font-size:.86rem}
+.muted{color:var(--muted);opacity:.95}
+.hint{background:var(--chip);border-left:3px solid var(--accent);padding:12px;border-radius:10px;margin-top:8px}
+.good{color:var(--good);background:var(--goodbg);padding:8px 10px;border-radius:10px;border:1px solid #b7dfc5}
+.bad{color:var(--bad);background:var(--badbg);padding:8px 10px;border:1px solid #f1b0b7}
+.kbd{border:1px solid var(--border);background:var(--chip);border-radius:6px;padding:1px 6px;font-weight:700}
+.table{width:100%;border-collapse:separate;border-spacing:0 8px}.table td{background:var(--panel);border:1px solid var(--border);padding:8px;border-radius:10px;vertical-align:top}
+small{font-size:.86rem}
+hr{border:none;border-top:1px solid var(--border);margin:12px 0}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--chip);border:1px solid var(--border);padding:2px 6px;border-radius:6px}
+.drags,.drops{display:grid;gap:10px}
+.drags{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.drag{padding:10px;border:1px dashed var(--dash);border-radius:10px;background:#fff;cursor:grab;text-align:center}
+.dark .drag{background:#0f141b}
+.drop{min-height:84px;border:1px dashed var(--dash);border-radius:10px;background:#fff;padding:8px;display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px}
+.dark .drop{background:#0f141b}
+.tag{font-size:.86rem;background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:6px 10px;cursor:grab}
+.counter{margin-left:auto;color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>PMP Risk Responses Trainer</h1>
+  <div style="flex:1"></div>
+  <label class="pill"><input type="checkbox" id="darkToggle"> Dark mode</label>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Practice</h2>
+    <div class="content">
+      <div class="row">
+        <label class="muted">Mode</label>
+        <select id="mode">
+          <option value="drag_tools">Drag: Match scenario ↔ response strategy</option>
+          <option value="mcq_tools">MCQ: Pick the best response</option>
+          <option value="sort_threats_opps">Sort: Threat strategies vs Opportunity strategies</option>
+        </select>
+        <button id="start">Start / Reset</button>
+        <span id="batchCounter" class="counter"></span>
+      </div>
+      <div id="work"></div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <h2>Risk Responses Reference</h2>
+    <div class="content">
+      <div class="hint">
+        <b style="color:#2874A6">Threat responses</b>
+        <ul id="threatList"></ul>
+      </div>
+      <div class="hint" style="margin-top:10px">
+        <b style="color:#2874A6">Opportunity responses</b>
+        <ul id="oppList"></ul>
+      </div>
+      <p class="muted">Shortcuts: <span class="kbd">R</span> reshuffle, <span class="kbd">Enter</span> check/next.</p>
+    </div>
+  </aside>
+</main>
+
+<script>
+// ===== Canonical strategies =====
+const THREAT = [
+  {key:"AVOID", label:"Avoid", desc:"Eliminate the threat, remove the cause, or change objectives to sidestep the risk entirely."},
+  {key:"MITIGATE", label:"Mitigate", desc:"Reduce probability and/or impact to acceptable levels via preventive actions."},
+  {key:"TRANSFER", label:"Transfer", desc:"Shift ownership/impact to a third party (insurance, warranties, fixed-price contract)."},
+  {key:"ACCEPT_T", label:"Accept (threat)", desc:"Acknowledge the risk with no proactive change; use contingency if it occurs."},
+  {key:"ESCALATE_T", label:"Escalate (threat)", desc:"Outside the project manager’s scope/authority—hand off to the right owner."},
+];
+
+const OPP = [
+  {key:"EXPLOIT", label:"Exploit", desc:"Ensure the opportunity definitely happens to capture maximum benefit."},
+  {key:"ENHANCE", label:"Enhance", desc:"Increase probability/impact to improve the upside."},
+  {key:"SHARE", label:"Share", desc:"Allocate ownership to a third party best positioned to realize the opportunity."},
+  {key:"ACCEPT_O", label:"Accept (opportunity)", desc:"Take advantage if it happens; no proactive change."},
+  {key:"ESCALATE_O", label:"Escalate (opportunity)", desc:"Outside PM authority—escalate to the appropriate owner."},
+];
+
+// Examples pool for MCQ + drag scenarios
+const SCENARIOS = [
+  // Threats
+  {text:"A hurricane season threatens your coastal data center; you move the workload to a different region before the season.", key:"AVOID"},
+  {text:"High defect rate risk; you add peer reviews and expand automated tests to cut probability.", key:"MITIGATE"},
+  {text:"Possible supplier default; you purchase performance bonds and require a bank guarantee.", key:"TRANSFER"},
+  {text:"Minor risk with negligible impact; you document it and set aside contingency only.", key:"ACCEPT_T"},
+  {text:"Corporate-wide security policy decision beyond your authority; you raise it to enterprise risk board.", key:"ESCALATE_T"},
+  // Opportunities
+  {text:"A new rebate could fund an upgrade; you change plan to ensure you qualify and capture the savings.", key:"EXPLOIT"},
+  {text:"A potential performance gain; you add a prototype spike to improve odds of realizing it.", key:"ENHANCE"},
+  {text:"A partner has superior distribution; you form a joint venture to maximize the upside.", key:"SHARE"},
+  {text:"A possible PR boost from media coverage; you note it and take it if it comes.", key:"ACCEPT_O"},
+  {text:"A portfolio-level tax credit decision; you push it to the finance steering committee.", key:"ESCALATE_O"},
+];
+
+// Build reference lists
+function buildRef(){
+  const ul = (id, arr) => {
+    const u = document.getElementById(id); u.innerHTML="";
+    arr.forEach(x=>{
+      const li = document.createElement('li');
+      li.innerHTML = `<b>${x.label}</b> — <small>${x.desc}</small>`;
+      u.appendChild(li);
+    });
+  };
+  ul('threatList', THREAT);
+  ul('oppList', OPP);
+}
+
+// Helpers
+const byId = id => document.getElementById(id);
+const shuffle = a => a.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const isTyping = el => { if(!el) return false; const t=(el.tagName||'').toLowerCase(); return el.isContentEditable||t==='input'||t==='textarea'||t==='select'; };
+
+// ===== Batching state for drag =====
+let DM_POOL = []; let DM_IDX = 0; const DM_BATCH = 6;
+function resetPool(){
+  DM_POOL = shuffle([...SCENARIOS]);
+  DM_IDX = 0;
+}
+
+// Mode 1: Drag & drop
+function dragTools(init=false){
+  if(init || DM_POOL.length===0){ resetPool(); }
+  const end = Math.min(DM_IDX + DM_BATCH, DM_POOL.length);
+  let batch = DM_POOL.slice(DM_IDX, end);
+  if(batch.length===0){ resetPool(); batch = DM_POOL.slice(0, Math.min(DM_BATCH, DM_POOL.length)); }
+  const batchNum = Math.floor(DM_IDX/DM_BATCH)+1;
+  const batchTotal = Math.ceil(DM_POOL.length/DM_BATCH);
+  byId('batchCounter').textContent = `Batch ${batchNum}/${batchTotal} (${batch.length} items)`;
+
+  const w = byId('work');
+  const all = [...THREAT, ...OPP];
+  const targets = shuffle(all).slice(6);
+  // Ensure all correct targets for this batch are present
+  const neededKeys = Array.from(new Set(batch.map(b=>b.key)));
+  neededKeys.forEach(k=>{
+    if(!targets.find(t=>t.key===k)){
+      const must = all.find(t=>t.key===k);
+      targets[0]=must;
+    }
+  });
+
+  w.innerHTML = `<p class="muted">Drag each <b>scenario</b> onto the correct <b>response strategy</b>. Click a placed chip to send it back.</p>
+  <div class="drags">${batch.map(p=>`<div class="drag" draggable="true" data-key="${p.key}">${p.text}</div>`).join('')}</div>
+  <div class="drops" style="margin-top:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+    ${targets.map(t=>`<div class="drop" data-key="${t.key}"><b>${t.label}</b><br><small>${t.desc}</small></div>`).join('')}
+  </div>
+  <div class="row" style="margin-top:12px">
+    <button id="check">Check</button>
+    <button id="clearMarks">Clear</button>
+    <button id="shuffleBatch">Shuffle batch</button>
+    <button id="nextBatch">Next batch</button>
+    <button id="restartSet">Restart set</button>
+  </div>
+  <div id="fb"></div>`;
+  hookDnD(w);
+
+  byId('shuffleBatch').onclick=()=>{
+    const current = DM_POOL.slice(DM_IDX, end);
+    const shuffled = shuffle(current);
+    DM_POOL.splice(DM_IDX, current.length, ...shuffled);
+    dragTools(false);
+  };
+  byId('nextBatch').onclick=()=>{ DM_IDX = end; dragTools(false); };
+  byId('restartSet').onclick=()=>{ resetPool(); dragTools(false); };
+}
+
+// Mode 2: MCQ
+function mcqTools(){
+  byId('batchCounter').textContent = "";
+  const w = byId('work');
+  const s = pick(SCENARIOS);
+  const all = [...THREAT, ...OPP];
+  const correct = all.find(x=>x.key===s.key);
+  let options = shuffle(all).slice(0,3).map(x=>x.label);
+  if(!options.includes(correct.label)) options[0]=correct.label;
+  options = shuffle(options);
+  w.innerHTML = `<div class="hint">${s.text}</div>
+  <div class="row" style="margin-top:10px">${options.map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join('')}</div>
+  <div id="fb"></div><div class="row"><button id="enterAction">Next</button></div>`;
+  w.querySelectorAll('.opt').forEach(b=>b.onclick=e=>{
+    const ok = e.currentTarget.dataset.v===correct.label;
+    byId('fb').innerHTML = ok ? `<div class="good">✓ Correct</div>` : `<div class="bad">Best response: <b>${correct.label}</b><br><small>${correct.desc}</small></div>`;
+  });
+  byId('enterAction').onclick=()=>mcqTools();
+}
+
+// Mode 3: Sort threats vs opportunities
+function sortThreatsOpps(){
+  byId('batchCounter').textContent = "";
+  const w = byId('work');
+  const items = shuffle([...THREAT, ...OPP]);
+  w.innerHTML = `<p class="muted">Drag each strategy into the correct bin: <b>Threat</b> or <b>Opportunity</b>.</p>
+  <div class="drags">${items.map(p=>`<div class="drag" draggable="true" data-expect="${isThreat(p.key)?'THREAT':'OPP'}">${p.label}</div>`).join('')}</div>
+  <div class="drops" style="margin-top:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+    <div class="drop" data-k="THREAT"><b>Threat strategies</b><br><small>Avoid, Mitigate, Transfer, Accept, Escalate</small></div>
+    <div class="drop" data-k="OPP"><b>Opportunity strategies</b><br><small>Exploit, Enhance, Share, Accept, Escalate</small></div>
+  </div>
+  <div class="row" style="margin-top:12px"><button id="check">Check</button><button id="clearMarks">Clear</button><button id="again">Shuffle</button></div>
+  <div id="fb"></div>`;
+  hookSort(w);
+  byId('again').onclick=()=>sortThreatsOpps();
+}
+
+function isThreat(key){
+  return ["AVOID","MITIGATE","TRANSFER","ACCEPT_T","ESCALATE_T"].includes(key);
+}
+
+// Shared DnD helpers
+function hookDnD(scope){
+  const bank = scope.querySelector('.drags');
+  scope.querySelectorAll('.drag').forEach(el=>{
+    el.addEventListener('dragstart',e=>{
+      const payload = {key:el.dataset.key, text:el.textContent};
+      e.dataTransfer.setData('text/plain', JSON.stringify(payload));
+      el.dataset.__dragging='1';
+    });
+    el.addEventListener('dragend',()=>{ delete el.dataset.__dragging; });
+    el.addEventListener('click',()=>{ el.style.background=''; el.style.borderColor=''; bank.appendChild(el); });
+  });
+  scope.querySelectorAll('.drop').forEach(el=>{
+    el.addEventListener('dragover',e=>e.preventDefault());
+    el.addEventListener('drop',e=>{
+      e.preventDefault();
+      const d = JSON.parse(e.dataTransfer.getData('text/plain')||'{}');
+      const moving = scope.querySelector('.drop .drag[data-__dragging="1"]');
+      const node = moving || scope.querySelector(`.drags .drag[data-key="${d.key}"]`);
+      if(node){ node.style.background=''; node.style.borderColor=''; el.appendChild(node); }
+    });
+  });
+  bank.addEventListener('dragover',e=>e.preventDefault());
+  bank.addEventListener('drop',e=>{
+    e.preventDefault();
+    const dragging = scope.querySelector('.drop .drag[data-__dragging="1"]');
+    if(dragging){ dragging.style.background=''; dragging.style.borderColor=''; bank.appendChild(dragging); }
+  });
+  const check=byId('check');
+  if(check) check.onclick=()=>{
+    let c=0,t=0;
+    scope.querySelectorAll('.drop').forEach(el=>{
+      const want = el.dataset.key;
+      el.querySelectorAll('.drag').forEach(item=>{
+        t++; const ok = (item.dataset.key===want);
+        item.style.borderColor = ok ? '#b7dfc5' : '#f1b0b7';
+        item.style.background = ok ? '#d4edda' : '#f8d7da';
+        if(ok) c++;
+      });
+    });
+    const fb = byId('fb');
+    if(fb) fb.innerHTML = (t>0 && c===t) ? `<div class="good">✓ Perfect! ${c}/${t}</div>` : `<div class="bad">${c}/${t} correct.</div>`;
+  };
+  const clearBtn=byId('clearMarks');
+  if(clearBtn) clearBtn.onclick=()=>{
+    scope.querySelectorAll('.drop .drag').forEach(tag=>{ tag.style.background=''; tag.style.borderColor=''; });
+    const fb = byId('fb'); if(fb) fb.innerHTML='';
+  };
+}
+
+function hookSort(scope){
+  const bank = scope.querySelector('.drags');
+  scope.querySelectorAll('.drag').forEach(el=>{
+    el.addEventListener('dragstart',e=>{
+      const payload = {expect:el.dataset.expect, text:el.textContent};
+      e.dataTransfer.setData('text/plain', JSON.stringify(payload));
+      el.dataset.__dragging='1';
+    });
+    el.addEventListener('dragend',()=>{ delete el.dataset.__dragging; });
+    el.addEventListener('click',()=>{ el.style.background=''; el.style.borderColor=''; bank.appendChild(el); });
+  });
+  scope.querySelectorAll('.drop').forEach(el=>{
+    el.addEventListener('dragover',e=>e.preventDefault());
+    el.addEventListener('drop',e=>{
+      e.preventDefault();
+      const moving = scope.querySelector('.drop .drag[data-__dragging="1"]');
+      if(moving){ moving.style.background=''; moving.style.borderColor=''; el.appendChild(moving); }
+    });
+  });
+  bank.addEventListener('dragover',e=>e.preventDefault());
+  bank.addEventListener('drop',e=>{
+    e.preventDefault();
+    const dragging = scope.querySelector('.drop .drag[data-__dragging="1"]');
+    if(dragging){ dragging.style.background=''; dragging.style.borderColor=''; bank.appendChild(dragging); }
+  });
+  const check=byId('check');
+  if(check) check.onclick=()=>{
+    let c=0,t=0;
+    scope.querySelectorAll('.drop').forEach(el=>{
+      const want = el.dataset.k;
+      el.querySelectorAll('.drag').forEach(item=>{
+        t++; const ok = (item.dataset.expect===want);
+        item.style.borderColor = ok ? '#b7dfc5' : '#f1b0b7';
+        item.style.background = ok ? '#d4edda' : '#f8d7da';
+        if(ok) c++;
+      });
+    });
+    const fb = byId('fb');
+    if(fb) fb.innerHTML = (t>0 && c===t) ? `<div class="good">✓ Perfect! ${c}/${t}</div>` : `<div class="bad">${c}/${t} correct.</div>`;
+  };
+  const clearBtn=byId('clearMarks');
+  if(clearBtn) clearBtn.onclick=()=>{
+    scope.querySelectorAll('.drop .drag').forEach(tag=>{ tag.style.background=''; tag.style.borderColor=''; });
+    const fb = byId('fb'); if(fb) fb.innerHTML='';
+  };
+}
+
+// Controls
+byId('darkToggle').onchange=()=>document.body.classList.toggle('dark', byId('darkToggle').checked);
+byId('start').onclick=()=>{ resetPool(); render(); };
+byId('mode').onchange=()=>render();
+document.addEventListener('keydown',e=>{ if(isTyping(document.activeElement)) return; if(e.key.toLowerCase()==='r'){ resetPool(); render(); } if(e.key==='Enter'){ const b=byId('enterAction'); if(b) b.click(); }});
+
+// Render
+function render(){
+  buildRef();
+  const mode = byId('mode').value;
+  const w = byId('work'); w.innerHTML="";
+  if(mode==='drag_tools'){ dragTools(true); }
+  else if(mode==='mcq_tools'){ mcqTools(); }
+  else { sortThreatsOpps(); }
+}
+
+// init
+resetPool();
+render();
+</script>
+</body>
+</html>

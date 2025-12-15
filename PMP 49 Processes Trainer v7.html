@@ -1,0 +1,1553 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PMP 49 Processes Trainer - Enhanced</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<style>
+:root{
+  --accent:#2874A6;
+  --bg:#f6f7fb;--panel:#ffffff;--border:#dbe2ee;--text:#0a1522;--muted:#556273;--chip:#eef3f8;--dash:#cfd9e3;
+  --good:#155724;--goodbg:#d4edda;--bad:#7a1d1d;--badbg:#f8d7da;--warning:#856404;--warningbg:#fff3cd
+}
+.dark{--bg:#0c1015;--panel:#121a23;--border:#223042;--text:#e8edf3;--muted:#9ab0c6;--chip:#172233;--dash:#2a374b;--good:#69db7c;--goodbg:#0f1a12;--bad:#ff8787;--badbg:#1a0f10;--warning:#ffd43b;--warningbg:#1a1508}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;color:var(--text);background:var(--bg)}
+header{display:flex;gap:12px;align-items:center;padding:14px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:clamp(1.08rem,2.6vw,1.45rem);color:var(--accent)}
+main{max-width:1400px;margin:0 auto;padding:16px;display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:1100px){main{grid-template-columns:1fr 380px}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.card h2{margin:0;padding:12px 14px;border-bottom:1px solid var(--border);font-size:1.02rem}
+.card .content{padding:12px 14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+select,button,input{background:#fff;border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px}
+.dark select,.dark button,.dark input{background:#0f141b;border-color:#263244;color:#e9eef3}
+button{cursor:pointer;font-weight:600}
+button:hover{opacity:0.9}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:var(--chip);border:1px solid var(--border);font-size:.86rem}
+.muted{color:var(--muted);opacity:.95}
+.hint{background:var(--chip);border-left:3px solid var(--accent);padding:12px;border-radius:10px;margin-top:8px}
+.good{color:var(--good);background:var(--goodbg);padding:8px 10px;border-radius:10px;border:1px solid #b7dfc5}
+.bad{color:var(--bad);background:var(--badbg);padding:8px 10px;border-radius:10px;border:1px solid #f1b0b7}
+.warning{color:var(--warning);background:var(--warningbg);padding:8px 10px;border-radius:10px;border:1px solid #ffeaa7}
+.kbd{border:1px solid var(--border);background:var(--chip);border-radius:6px;padding:1px 6px;font-weight:700;font-size:.85rem}
+small{font-size:.86rem}
+hr{border:none;border-top:1px solid var(--border);margin:12px 0}
+.tag{font-size:.86rem;background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:6px 10px;cursor:grab}
+.drag{padding:10px;border:1px dashed var(--dash);border-radius:10px;background:#fff;cursor:grab;text-align:left}
+.drag:active{cursor:grabbing}
+.drag[data-__dragging="1"]{opacity:0.5}
+.dark .drag{background:#0f141b}
+.drags,.drops{display:grid;gap:10px}
+.drags{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.drop{min-height:120px;border:1px dashed var(--dash);border-radius:10px;background:#fff;padding:8px;display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px;transition:background 0.2s}
+.drop.drag-over{background:#f0f8ff;border-color:var(--accent)}
+.dark .drop{background:#0f141b}
+.counter{margin-left:auto;color:var(--muted);font-size:.9rem}
+.fixed{position:sticky;top:72px;max-height:calc(100vh - 88px);overflow-y:auto}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.matrix{display:grid;grid-template-columns:repeat(11,1fr);gap:2px;font-size:.7rem;margin-top:10px}
+.matrix-cell{padding:8px 4px;background:var(--chip);border:1px solid var(--border);border-radius:4px;text-align:center;cursor:pointer;transition:all .2s}
+.matrix-cell:hover{background:var(--accent);color:white}
+.matrix-cell.header{font-weight:700;background:var(--accent);color:white;cursor:default}
+.matrix-cell.mastered{background:#d4edda;border-color:#b7dfc5}
+.matrix-cell.learning{background:#fff3cd;border-color:#ffeaa7}
+.timer{font-size:1.5rem;font-weight:700;color:var(--accent);text-align:center;margin:10px 0}
+.brain-dump-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px}
+.brain-dump-cell{min-height:60px;border:2px solid var(--border);border-radius:8px;padding:6px;text-align:center;background:var(--chip)}
+.brain-dump-cell input{width:100%;border:none;background:transparent;text-align:center;font-size:.8rem;padding:4px}
+.stat-bar{background:var(--chip);border-radius:8px;padding:10px;margin:8px 0;border:1px solid var(--border)}
+.stat-label{font-weight:600;margin-bottom:4px}
+.stat-value{font-size:1.3rem;color:var(--accent)}
+.progress-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;background:var(--accent);transition:width .3s}
+.scenario-box{background:var(--chip);border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0}
+.critical-badge{display:inline-block;background:#ff6b6b;color:white;font-size:.75rem;padding:2px 8px;border-radius:999px;margin-left:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎯 PMP 49 Processes Trainer - Enhanced</h1>
+  <div style="flex:1"></div>
+  <label class="pill"><input type="checkbox" id="darkToggle"> Dark mode</label>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Practice Modes</h2>
+    <div class="content">
+      <div class="row">
+        <label class="muted">Select Mode</label>
+        <select id="mode">
+          <optgroup label="Basic Recognition">
+            <option value="drag_pg">1️⃣ Drag: Process → Process Group</option>
+            <option value="sort_ka">2️⃣ Sort: Process → Knowledge Area</option>
+            <option value="mcq_purpose">3️⃣ MCQ: Purpose → Process</option>
+          </optgroup>
+          <optgroup label="Intermediate">
+            <option value="mcq_outputs">4️⃣ MCQ: Key Output → Process</option>
+            <option value="scenario">5️⃣ Scenario → Process ID</option>
+            <option value="sequencing">6️⃣ Process Sequencing</option>
+            <option value="confusions">7️⃣ Common Confusions</option>
+          </optgroup>
+          <optgroup label="Advanced">
+            <option value="itto_recognition">8️⃣ Common ITTO Recognition</option>
+            <option value="integration_focus">9️⃣ Integration Deep Dive</option>
+            <option value="visual_matrix">🔟 Interactive Process Matrix</option>
+          </optgroup>
+          <optgroup label="Master Challenge">
+            <option value="brain_dump">🧠 Process Recall Challenge</option>
+            <option value="matrix_fill">📊 Complete the Matrix Challenge</option>
+          </optgroup>
+        </select>
+        <button id="start">Start / Reset</button>
+        <span id="batchCounter" class="counter"></span>
+      </div>
+      <div id="work"></div>
+    </div>
+  </section>
+
+  <aside class="card fixed">
+    <h2>Reference & Stats</h2>
+    <div class="content">
+      <div class="hint">
+        <b style="color:#2874A6">Process Groups (5)</b>
+        <ul style="margin-top:6px;font-size:.9rem">
+          <li><b>Initiating (2):</b> Develop Project Charter, Identify Stakeholders</li>
+          <li><b>Planning (24):</b> Most processes here!</li>
+          <li><b>Executing (10):</b> Do the work</li>
+          <li><b>Monitoring & Controlling (12):</b> Track & control</li>
+          <li><b>Closing (1):</b> Close Project or Phase</li>
+        </ul>
+      </div>
+      
+      <div class="hint" style="margin-top:10px">
+        <b style="color:#2874A6">Knowledge Areas (10)</b>
+        <div style="display:grid;gap:6px;margin-top:6px;font-size:.85rem">
+          <div>1. <b>Integration Management (7)</b> Includes the processes and activities to identify, define, combine, unify, and coordinate the various processes and project management activities within the Project Management Process Groups.</div>
+          <div>2. <b>Scope Management (6)</b> Includes the processes required to ensure the project includes all the work required, and only the work required, to complete the project successfully.</div>
+          <div>3. <b>Schedule Management (6)</b> Includes the processes required to manage the timely completion of the project.</div>
+          <div>4. <b>Cost Management (4)</b> Includes the processes involved in planning, estimating, budgeting, financing, funding, managing, and controlling costs so the project can be completed within the approved budget.</div>
+          <div>5. <b>Quality Management (3)</b> Includes the processes for incorporating the organization's quality policy regarding planning, managing, and controlling project and product quality requirements, in order to meet stakeholders’ expectations.</div>
+		  <div>6. <b>Resource Management (6)</b> Includes the processes to identify, acquire, and manage the resources needed for the successful completion of the project. </div>
+		  <div>7. <b>Communications Management (3)</b> Includes the processes required to ensure timely and appropriate planning, collection, creation, distribution, storage, retrieval, management, control, monitoring, and ultimate disposition of project information.</div>
+		  <div>8. <b>Risk Management (7)</b> Includes the processes of conducting risk management planning, identification, analysis, response planning, response implementation, and monitoring risk on a project.</div>
+		  <div>9. <b>Procurement Management (3)</b> Includes the processes necessary to purchase or acquire products, services, or results needed from outside the project team.</div>
+		  <div>10. <b>Stakeholder Management (4)</b> Includes the processes required to identify the people, groups, or organizations that could impact or be impacted by the project, to analyze stakeholder expectations and their impact on the project, and to develop appropriate management strategies for effectively engaging stakeholders in project decisions and execution.</div>
+		  
+        </div>
+      </div>
+
+      <div class="hint" style="margin-top:10px">
+        <b>🔥 Critical Exam Concepts</b>
+        <ul style="margin-top:6px;font-size:.85rem">
+          <li><b>Develop Project Charter:</b> PM gets authority here!</li>
+          <li><b>Perform Integrated Change Control:</b> ALL changes go through here</li>
+          <li><b>Validate Scope vs Control Quality:</b> Acceptance vs Inspection</li>
+          <li><b>Manage Quality vs Control Quality:</b> Process vs Product</li>
+        </ul>
+      </div>
+
+      <div class="hint" style="margin-top:10px">
+        <b>Common ITTOs (Don't memorize 660+)</b>
+        <ul style="margin-top:6px;font-size:.85rem">
+          <li>EEF (Enterprise Environmental Factors)</li>
+          <li>OPA (Organizational Process Assets)</li>
+          <li>Project Documents</li>
+          <li>Project Management Plan</li>
+          <li>Expert Judgment (most common tool)</li>
+          <li>Change Requests</li>
+        </ul>
+      </div>
+
+      <div class="hint" style="margin-top:10px">
+        <b>⌨️ Keyboard Shortcuts</b><br>
+        <span class="kbd">R</span> Reshuffle • <span class="kbd">Enter</span> Next • <span class="kbd">S</span> Stats
+      </div>
+
+      <button id="showStatsBtn" style="width:100%;margin-top:10px">📊 View My Statistics</button>
+
+      <div id="statsPanel" style="margin-top:12px;display:none">
+        <hr>
+        <b>📊 Your Statistics</b>
+        <div id="statsContent" style="margin-top:8px"></div>
+      </div>
+        <hr>
+        <b>📊 Your Statistics</b>
+        <div id="statsContent"></div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<script>
+// ===== Enhanced Data Model =====
+function P(name, group, area, purpose, keyOutputs, scenario, whenToUse, critical=false){
+  return {name, group, area, purpose, keyOutputs, scenario, whenToUse, critical};
+}
+
+// Enhanced 49 Processes with Key Outputs and Scenarios
+const PROCESSES = [
+  // Integration (7)
+  P("Develop Project Charter","Initiating","Integration",
+    "Formally authorizes the project and gives the PM authority",
+    ["Project Charter"],
+    "You need formal authorization to start a new project and assign a project manager",
+    "At project start to authorize the project and empower the PM",
+    true),
+  
+  P("Develop Project Management Plan","Planning","Integration",
+    "Defines how the project will be executed, monitored, and closed",
+    ["Project Management Plan (with 14 subsidiary plans + 4 baselines)"],
+    "You need to document how all aspects of the project will be managed",
+    "After charter, before execution begins",
+    true),
+  
+  P("Direct and Manage Project Work","Executing","Integration",
+    "Leads and performs the planned work to produce deliverables",
+    ["Deliverables","Work Performance Data","Change Requests"],
+    "Your team is executing the work defined in the project management plan",
+    "During execution phase to create deliverables"),
+  
+  P("Manage Project Knowledge","Executing","Integration",
+    "Leverages lessons learned and knowledge assets to improve outcomes",
+    ["Lessons Learned Register","OPA Updates"],
+    "You want to capture and share knowledge throughout the project lifecycle",
+    "Throughout project to capture and use knowledge"),
+  
+  P("Monitor and Control Project Work","Monitoring & Controlling","Integration",
+    "Tracks performance to meet the plan and take corrective actions",
+    ["Work Performance Reports","Change Requests"],
+    "You need to track overall project progress and compare actual vs planned",
+    "Continuously during project execution",
+    true),
+  
+  P("Perform Integrated Change Control","Monitoring & Controlling","Integration",
+    "Reviews all change requests; approves and manages changes",
+    ["Approved Change Requests","Change Log Updates"],
+    "Someone requests a change to scope, schedule, or cost",
+    "Whenever any change is requested",
+    true),
+  
+  P("Close Project or Phase","Closing","Integration",
+    "Finalizes activities to formally complete the project or phase",
+    ["Final Product/Service/Result","Final Report","OPA Updates"],
+    "Project is complete and needs formal closure and lessons learned",
+    "At end of project or phase"),
+
+  // Scope (6)
+  P("Plan Scope Management","Planning","Scope",
+    "Defines how scope will be defined, validated, and controlled",
+    ["Scope Management Plan","Requirements Management Plan"],
+    "You need to establish how scope will be managed throughout the project",
+    "Early in planning before defining scope"),
+  
+  P("Collect Requirements","Planning","Scope",
+    "Determines stakeholder needs and requirements",
+    ["Requirements Documentation","Requirements Traceability Matrix"],
+    "Stakeholders are unclear about their needs and expectations",
+    "Early planning to gather all requirements",
+    true),
+  
+  P("Define Scope","Planning","Scope",
+    "Develops a detailed project and product scope statement",
+    ["Project Scope Statement"],
+    "You need detailed description of what the project will and won't deliver",
+    "After collecting requirements"),
+  
+  P("Create WBS","Planning","Scope",
+    "Decomposes deliverables and work into smaller components",
+    ["Scope Baseline (WBS + WBS Dictionary + Scope Statement)"],
+    "You need to break down the project into manageable work packages",
+    "After defining scope to create work breakdown"),
+  
+  P("Validate Scope","Monitoring & Controlling","Scope",
+    "Formalizes acceptance of completed deliverables",
+    ["Accepted Deliverables"],
+    "Customer needs to formally accept completed deliverables",
+    "After Control Quality verifies deliverables",
+    true),
+  
+  P("Control Scope","Monitoring & Controlling","Scope",
+    "Monitors status of scope and manages changes to the baseline",
+    ["Work Performance Information","Change Requests"],
+    "You need to prevent scope creep and manage scope changes",
+    "Throughout project to control scope"),
+
+  // Schedule (6)
+  P("Plan Schedule Management","Planning","Schedule",
+    "Defines how the schedule will be developed and controlled",
+    ["Schedule Management Plan"],
+    "You need to establish how the project schedule will be managed",
+    "Early planning before developing schedule"),
+  
+  P("Define Activities","Planning","Schedule",
+    "Identifies specific actions to produce deliverables",
+    ["Activity List","Activity Attributes","Milestone List"],
+    "You need to identify all work activities from WBS work packages",
+    "After creating WBS"),
+  
+  P("Sequence Activities","Planning","Schedule",
+    "Orders activities and identifies logical relationships",
+    ["Project Schedule Network Diagram"],
+    "You need to determine the order and dependencies of activities",
+    "After defining activities"),
+  
+  P("Estimate Activity Durations","Planning","Schedule",
+    "Approximates work periods needed to complete activities",
+    ["Duration Estimates","Basis of Estimates"],
+    "You need to estimate how long each activity will take",
+    "After sequencing activities"),
+  
+  P("Develop Schedule","Planning","Schedule",
+    "Analyzes sequences, durations, resources to create the schedule",
+    ["Schedule Baseline","Project Schedule"],
+    "You need to create the project timeline with start and finish dates",
+    "After estimating durations and resources"),
+  
+  P("Control Schedule","Monitoring & Controlling","Schedule",
+    "Monitors schedule status and manages changes",
+    ["Work Performance Information","Schedule Forecasts","Change Requests"],
+    "You need to track schedule performance and manage delays",
+    "Throughout project to control schedule"),
+
+  // Cost (4)
+  P("Plan Cost Management","Planning","Cost",
+    "Defines how costs will be planned, structured, and controlled",
+    ["Cost Management Plan"],
+    "You need to establish how project costs will be managed",
+    "Early planning before estimating costs"),
+  
+  P("Estimate Costs","Planning","Cost",
+    "Develops cost approximations for project work",
+    ["Cost Estimates","Basis of Estimates"],
+    "You need to estimate costs for each activity and resource",
+    "After defining resources"),
+  
+  P("Determine Budget","Planning","Cost",
+    "Aggregates costs to establish the cost baseline",
+    ["Cost Baseline","Project Funding Requirements"],
+    "You need to aggregate all cost estimates into an approved budget",
+    "After estimating all costs"),
+  
+  P("Control Costs","Monitoring & Controlling","Cost",
+    "Monitors cost performance and manages changes to the baseline",
+    ["Work Performance Information","Cost Forecasts","Change Requests"],
+    "You need to track actual costs vs budget and manage variances",
+    "Throughout project to control costs"),
+
+  // Quality (3)
+  P("Plan Quality Management","Planning","Quality",
+    "Defines quality requirements and how to meet them",
+    ["Quality Management Plan","Quality Metrics"],
+    "You need to identify quality standards relevant to the project",
+    "During planning to establish quality approach"),
+  
+  P("Manage Quality","Executing","Quality",
+    "Implements quality assurance via process improvements and audits",
+    ["Quality Reports","Test and Evaluation Documents","Change Requests"],
+    "You need to ensure quality processes are being followed correctly",
+    "During execution to audit and improve processes",
+    true),
+  
+  P("Control Quality","Monitoring & Controlling","Quality",
+    "Verifies deliverables meet quality requirements",
+    ["Quality Control Measurements","Verified Deliverables"],
+    "You need to inspect and test deliverables to ensure they meet requirements",
+    "Throughout execution to verify deliverables",
+    true),
+
+  // Resource (6)
+  P("Plan Resource Management","Planning","Resource",
+    "Defines how to estimate, acquire, manage, and use team and physical resources",
+    ["Resource Management Plan","Team Charter"],
+    "You need to plan how to acquire and manage both team and physical resources",
+    "During planning to establish resource approach"),
+  
+  P("Estimate Activity Resources","Planning","Resource",
+    "Estimates resources (team, equipment, materials) for activities",
+    ["Resource Requirements","Basis of Estimates","Resource Breakdown Structure"],
+    "You need to determine what resources are needed for each activity",
+    "After defining activities"),
+  
+  P("Acquire Resources","Executing","Resource",
+    "Obtains team members, facilities, equipment, and supplies",
+    ["Physical Resource Assignments","Project Team Assignments","Resource Calendars"],
+    "You need to actually acquire the team members and resources for the project",
+    "During execution when resources are needed"),
+  
+  P("Develop Team","Executing","Resource",
+    "Improves competencies, interaction, and team environment",
+    ["Team Performance Assessments","Change Requests"],
+    "You need to improve team skills, cohesion, and performance",
+    "Throughout execution to build effective team"),
+  
+  P("Manage Team","Executing","Resource",
+    "Tracks team performance, resolves issues, provides feedback",
+    ["Change Requests","Project Management Plan Updates"],
+    "You need to resolve team conflicts and manage performance issues",
+    "Throughout execution to manage team dynamics"),
+  
+  P("Control Resources","Monitoring & Controlling","Resource",
+    "Ensures resources are available as planned and optimized",
+    ["Work Performance Information","Change Requests"],
+    "You need to monitor resource utilization and make adjustments",
+    "Throughout project to control resource usage"),
+
+  // Communications (3)
+  P("Plan Communications Management","Planning","Communications",
+    "Determines stakeholder information needs and communications approach",
+    ["Communications Management Plan"],
+    "You need to determine who needs what information and when",
+    "During planning to establish communications strategy"),
+  
+  P("Manage Communications","Executing","Communications",
+    "Creates, collects, distributes, stores, retrieves project information",
+    ["Project Communications"],
+    "You need to distribute information to stakeholders per the comm plan",
+    "Throughout execution to share information"),
+  
+  P("Monitor Communications","Monitoring & Controlling","Communications",
+    "Ensures communications meet stakeholder needs",
+    ["Work Performance Information","Change Requests"],
+    "You need to verify communications are meeting stakeholder expectations",
+    "Throughout project to ensure effective communications"),
+
+  // Risk (7)
+  P("Plan Risk Management","Planning","Risk",
+    "Defines how risk activities will be conducted",
+    ["Risk Management Plan"],
+    "You need to establish how risks will be managed on the project",
+    "Early planning to establish risk approach"),
+  
+  P("Identify Risks","Planning","Risk",
+    "Determines individual risks and overall project risk sources",
+    ["Risk Register","Risk Report"],
+    "You need to identify all potential threats and opportunities",
+    "Throughout project as new risks emerge"),
+  
+  P("Perform Qualitative Risk Analysis","Planning","Risk",
+    "Prioritizes risks for action using probability and impact",
+    ["Risk Register Updates (priority rankings)"],
+    "You need to prioritize identified risks for further analysis",
+    "After identifying risks to prioritize them"),
+  
+  P("Perform Quantitative Risk Analysis","Planning","Risk",
+    "Numerically analyzes the effects of risks on objectives",
+    ["Risk Register Updates (quantitative analysis)"],
+    "You need numerical analysis of risk impacts on schedule and cost",
+    "After qualitative analysis for high-priority risks"),
+  
+  P("Plan Risk Responses","Planning","Risk",
+    "Develops options and actions to address risks",
+    ["Risk Register Updates (response strategies)","Risk Report Updates"],
+    "You need to develop strategies to respond to identified risks",
+    "After analyzing risks to plan responses"),
+  
+  P("Implement Risk Responses","Executing","Risk",
+    "Carries out agreed-upon risk response plans",
+    ["Change Requests"],
+    "An identified risk has occurred and needs response implementation",
+    "During execution when risks occur"),
+  
+  P("Monitor Risks","Monitoring & Controlling","Risk",
+    "Tracks risks, residuals, new risks, and response effectiveness",
+    ["Work Performance Information","Change Requests"],
+    "You need to track identified risks and watch for new ones",
+    "Throughout project to monitor risk status"),
+
+  // Procurement (3)
+  P("Plan Procurement Management","Planning","Procurement",
+    "Documents procurement decisions and approach; identifies sellers",
+    ["Procurement Management Plan","Procurement Strategy","Bid Documents","Source Selection Criteria"],
+    "You need to determine what to buy, how, and from whom",
+    "During planning when external procurement is needed"),
+  
+  P("Conduct Procurements","Executing","Procurement",
+    "Obtains seller responses, selects a seller, and awards a contract",
+    ["Selected Sellers","Agreements"],
+    "You need to receive proposals, select a vendor, and sign a contract",
+    "During execution when ready to award contract"),
+  
+  P("Control Procurements","Monitoring & Controlling","Procurement",
+    "Manages procurement relationships and contract performance",
+    ["Closed Procurements","Work Performance Information"],
+    "You need to manage vendor performance and ensure contract compliance",
+    "Throughout execution to manage vendor relationships"),
+
+  // Stakeholder (4)
+  P("Identify Stakeholders","Initiating","Stakeholder",
+    "Identifies people and organizations impacted by the project",
+    ["Stakeholder Register"],
+    "You need to identify everyone who can impact or be impacted by the project",
+    "At project start to identify all stakeholders",
+    true),
+  
+  P("Plan Stakeholder Engagement","Planning","Stakeholder",
+    "Develops strategies to effectively engage stakeholders",
+    ["Stakeholder Engagement Plan"],
+    "You need strategies to engage stakeholders appropriately",
+    "During planning to establish engagement approach"),
+  
+  P("Manage Stakeholder Engagement","Executing","Stakeholder",
+    "Engages stakeholders and manages expectations",
+    ["Change Requests"],
+    "You need to work with stakeholders to meet their needs",
+    "Throughout execution to maintain engagement"),
+  
+  P("Monitor Stakeholder Engagement","Monitoring & Controlling","Stakeholder",
+    "Monitors relationships and adjusts strategies",
+    ["Work Performance Information","Change Requests"],
+    "You need to monitor stakeholder satisfaction and adjust strategies",
+    "Throughout project to monitor engagement")
+];
+
+// Common Confusions Pairs
+const CONFUSIONS = [
+  {
+    processes: ["Validate Scope","Control Quality"],
+    question: "What's the key difference between these processes?",
+    correct: "Validate Scope",
+    correctAnswer: "Validate Scope is about ACCEPTANCE of deliverables by customer. Control Quality is about CORRECTNESS/INSPECTION of deliverables.",
+    wrongAnswer: "Control Quality is about acceptance",
+    explanation: "Validate Scope = Customer/Sponsor ACCEPTS deliverables. Control Quality = PM/Team VERIFIES deliverables meet requirements. Validate Scope is concerned with acceptance; Control Quality is concerned with correctness."
+  },
+  {
+    processes: ["Manage Quality","Control Quality"],
+    question: "One focuses on process, the other on product. Which is which?",
+    correct: "Manage Quality",
+    correctAnswer: "Manage Quality focuses on PROCESSES (quality assurance, audits). Control Quality focuses on PRODUCTS (inspecting deliverables).",
+    wrongAnswer: "Control Quality focuses on processes",
+    explanation: "Manage Quality = Quality ASSURANCE, auditing processes. Control Quality = Measuring/inspecting DELIVERABLES. Process vs Product."
+  },
+  {
+    processes: ["Estimate Costs","Determine Budget"],
+    question: "Which one creates the cost baseline?",
+    correct: "Determine Budget",
+    correctAnswer: "Determine Budget aggregates all cost estimates to create the COST BASELINE.",
+    wrongAnswer: "Estimate Costs creates the baseline",
+    explanation: "Estimate Costs = Creates cost approximations for activities. Determine Budget = Aggregates those estimates into the authorized COST BASELINE."
+  },
+  {
+    processes: ["Plan Risk Responses","Implement Risk Responses"],
+    question: "Which one is in the Planning process group?",
+    correct: "Plan Risk Responses",
+    correctAnswer: "Plan Risk Responses (Planning) develops STRATEGIES. Implement Risk Responses (Executing) carries them out.",
+    wrongAnswer: "Implement Risk Responses is in Planning",
+    explanation: "Plan Risk Responses = Planning process that develops response strategies. Implement Risk Responses = Executing process that implements those strategies when risks occur."
+  },
+  {
+    processes: ["Direct and Manage Project Work","Manage Project Knowledge"],
+    question: "Which one produces the deliverables?",
+    correct: "Direct and Manage Project Work",
+    correctAnswer: "Direct and Manage Project Work produces deliverables. Manage Project Knowledge captures lessons learned.",
+    wrongAnswer: "Manage Project Knowledge produces deliverables",
+    explanation: "Direct and Manage Project Work = Execute planned work to create DELIVERABLES. Manage Project Knowledge = Use and create KNOWLEDGE throughout project."
+  },
+  {
+    processes: ["Collect Requirements","Define Scope"],
+    question: "Which one creates the Requirements Traceability Matrix?",
+    correct: "Collect Requirements",
+    correctAnswer: "Collect Requirements creates Requirements Documentation and Requirements Traceability Matrix. Define Scope creates the Project Scope Statement.",
+    wrongAnswer: "Define Scope creates the RTM",
+    explanation: "Collect Requirements = Gathers stakeholder needs, creates Requirements Documentation and RTM. Define Scope = Creates detailed Project Scope Statement from those requirements."
+  }
+];
+
+// Common ITTO Questions
+const ITTO_QUESTIONS = [
+  {
+    question: "EEF (Enterprise Environmental Factors) and OPA (Organizational Process Assets) are inputs to approximately how many of the 49 processes?",
+    options: ["10-20","25-35","40-45","All 49"],
+    correct: "40-45",
+    explanation: "EEF and OPA are inputs to the vast majority of processes (approximately 40-45). They're so common that PMI says 'include but not limited to' for many inputs."
+  },
+  {
+    question: "Which is the most common tool/technique across all 49 processes?",
+    options: ["Meetings","Data Analysis","Expert Judgment","PMIS"],
+    correct: "Expert Judgment",
+    explanation: "Expert Judgment is the most frequently used tool/technique, appearing in the majority of the 49 processes. It involves consulting with individuals or groups with specialized knowledge."
+  },
+  {
+    question: "The Project Management Plan is updated as an output in approximately how many processes?",
+    options: ["5-10","15-20","25-30","35-40"],
+    correct: "25-30",
+    explanation: "The Project Management Plan is updated in approximately 27 processes across all process groups, as the project evolves and more information becomes available."
+  },
+  {
+    question: "Which output appears in almost all Monitoring & Controlling processes?",
+    options: ["Deliverables","Work Performance Information","Project Documents","Agreements"],
+    correct: "Work Performance Information",
+    explanation: "Work Performance Information is created in M&C processes by analyzing Work Performance Data against the plan. It appears in nearly all M&C processes."
+  },
+  {
+    question: "Change Requests can be outputs of processes in which process groups?",
+    options: ["Only Planning","Planning and Executing","Executing and M&C","Planning, Executing, and M&C"],
+    correct: "Planning, Executing, and M&C",
+    explanation: "Change Requests can arise during Planning (as we learn more), Executing (as work is performed), and M&C (as performance is monitored). They're reviewed in Perform Integrated Change Control."
+  }
+];
+
+// Statistics tracking
+let stats = {correct:0, total:0, byKA:{}, byPG:{}, weakProcesses:{}};
+try {
+  const saved = localStorage.getItem('pmpStats');
+  if(saved) stats = JSON.parse(saved);
+} catch(e) {
+  console.log('localStorage not available:', e);
+}
+
+function updateStats(process, correct) {
+  stats.total++;
+  if(correct) stats.correct++;
+  
+  // Track by Knowledge Area
+  if(!stats.byKA[process.area]) stats.byKA[process.area] = {correct:0, total:0};
+  stats.byKA[process.area].total++;
+  if(correct) stats.byKA[process.area].correct++;
+  
+  // Track by Process Group
+  if(!stats.byPG[process.group]) stats.byPG[process.group] = {correct:0, total:0};
+  stats.byPG[process.group].total++;
+  if(correct) stats.byPG[process.group].correct++;
+  
+  // Track weak processes
+  if(!stats.weakProcesses[process.name]) stats.weakProcesses[process.name] = {correct:0, total:0};
+  stats.weakProcesses[process.name].total++;
+  if(correct) stats.weakProcesses[process.name].correct++;
+  
+  try {
+    localStorage.setItem('pmpStats', JSON.stringify(stats));
+  } catch(e) {
+    console.log('Could not save stats:', e);
+  }
+}
+
+function showStats() {
+  const panel = byId('statsPanel');
+  const content = byId('statsContent');
+  
+  if(stats.total === 0) {
+    content.innerHTML = '<p class="muted">No practice data yet. Start practicing!</p>';
+  } else {
+    const overallPct = Math.round((stats.correct / stats.total) * 100);
+    
+    let html = `<div class="stat-bar">
+      <div class="stat-label">Overall Accuracy</div>
+      <div class="stat-value">${overallPct}%</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${overallPct}%"></div></div>
+      <small class="muted">${stats.correct} / ${stats.total} correct</small>
+    </div>`;
+    
+    // By Knowledge Area
+    html += '<div style="margin-top:12px"><b>By Knowledge Area</b></div>';
+    const kaNames = Object.keys(stats.byKA).sort();
+    kaNames.forEach(ka => {
+      const pct = Math.round((stats.byKA[ka].correct / stats.byKA[ka].total) * 100);
+      html += `<div style="font-size:.85rem;margin:4px 0">${ka}: ${pct}% (${stats.byKA[ka].correct}/${stats.byKA[ka].total})</div>`;
+    });
+    
+    // Weakest processes
+    const weak = Object.entries(stats.weakProcesses)
+      .filter(([name, data]) => data.total >= 3)
+      .map(([name, data]) => ({name, pct: data.correct / data.total, ...data}))
+      .sort((a, b) => a.pct - b.pct)
+      .slice(0, 5);
+    
+    if(weak.length > 0) {
+      html += '<div style="margin-top:12px"><b>⚠️ Processes Needing Practice</b></div>';
+      weak.forEach(p => {
+        html += `<div style="font-size:.85rem;margin:4px 0">${p.name}: ${Math.round(p.pct*100)}%</div>`;
+      });
+    }
+    
+    html += '<button onclick="resetStats()" style="margin-top:10px;font-size:.85rem">Reset Stats</button>';
+    content.innerHTML = html;
+  }
+  
+  panel.style.display = 'block';
+}
+
+function resetStats() {
+  if(confirm('Reset all statistics?')) {
+    stats = {correct:0, total:0, byKA:{}, byPG:{}, weakProcesses:{}};
+    try {
+      localStorage.setItem('pmpStats', JSON.stringify(stats));
+    } catch(e) {
+      console.log('Could not save stats:', e);
+    }
+    showStats();
+  }
+}
+
+// Utility functions
+function byId(id){return document.getElementById(id)}
+function shuffle(arr){const r=[...arr];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}return r}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function isTyping(el){return el.tagName==='INPUT'||el.tagName==='TEXTAREA'}
+
+// Pool management
+let PG_POOL=[],PG_IDX=0,PG_BATCH=10;
+let KA_POOL=[],KA_IDX=0,KA_BATCH=10;
+function resetPools(){ PG_POOL=shuffle([...PROCESSES]); PG_IDX=0; KA_POOL=shuffle([...PROCESSES]); KA_IDX=0; }
+
+// ===== Mode 1: Drag Process → Process Group =====
+function dragPG(init=false){
+  if(init || PG_POOL.length===0){ PG_POOL = shuffle([...PROCESSES]); PG_IDX=0; }
+  const end = Math.min(PG_IDX + PG_BATCH, PG_POOL.length);
+  let batch = PG_POOL.slice(PG_IDX, end);
+  if(batch.length===0){ PG_POOL = shuffle([...PROCESSES]); PG_IDX=0; batch = PG_POOL.slice(0, Math.min(PG_BATCH, PG_POOL.length)); }
+  const batchNum = Math.floor(PG_IDX/PG_BATCH)+1;
+  const batchTotal = Math.ceil(PG_POOL.length/PG_BATCH);
+  byId('batchCounter').textContent = `Batch ${batchNum}/${batchTotal} (${batch.length} items)`;
+
+  const w = byId('work');
+  const groups = ["Initiating","Planning","Executing","Monitoring & Controlling","Closing"];
+  w.innerHTML = `<p class="muted">Drag each <b>process name</b> onto its correct <b>Process Group</b>. Click to send back to bank.</p>
+  <div class="drags">${batch.map(p=>`<div class="drag" draggable="true" data-name="${p.name}" data-group="${p.group}"><b>${p.name}</b>${p.critical?'<span class="critical-badge">CRITICAL</span>':''}<br><small>${p.area} KA</small></div>`).join('')}</div>
+  <div class="drops" style="margin-top:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+    ${groups.map(g=>`<div class="drop" data-k="${g}"><b>${g}</b></div>`).join('')}
+  </div>
+  <div class="row" style="margin-top:12px">
+    <button id="check">Check</button>
+    <button id="clearMarks">Clear</button>
+    <button id="shuffleBatch">Shuffle batch</button>
+    <button id="nextBatch">Next batch</button>
+    <button id="restartSet">Restart set</button>
+  </div>
+  <div id="fb"></div>`;
+  hookSortExpect(w, "group");
+  byId('shuffleBatch').onclick=()=>{ const current=PG_POOL.slice(PG_IDX,end); const shuffled=shuffle(current); PG_POOL.splice(PG_IDX,current.length,...shuffled); dragPG(false); };
+  byId('nextBatch').onclick=()=>{ PG_IDX=end; dragPG(false); };
+  byId('restartSet').onclick=()=>{ PG_POOL=shuffle([...PROCESSES]); PG_IDX=0; dragPG(false); };
+}
+
+// ===== Mode 2: Sort Process → Knowledge Area =====
+function sortKA(init=false){
+  if(init || KA_POOL.length===0){ KA_POOL = shuffle([...PROCESSES]); KA_IDX=0; }
+  const end = Math.min(KA_IDX + KA_BATCH, KA_POOL.length);
+  let batch = KA_POOL.slice(KA_IDX, end);
+  if(batch.length===0){ KA_POOL = shuffle([...PROCESSES]); KA_IDX=0; batch = KA_POOL.slice(0, Math.min(KA_BATCH, KA_POOL.length)); }
+  const batchNum = Math.floor(KA_IDX/KA_BATCH)+1;
+  const batchTotal = Math.ceil(KA_POOL.length/KA_BATCH);
+  byId('batchCounter').textContent = `Batch ${batchNum}/${batchTotal} (${batch.length} items)`;
+
+  const w = byId('work');
+  const areas = ["Integration","Scope","Schedule","Cost","Quality","Resource","Communications","Risk","Procurement","Stakeholder"];
+  w.innerHTML = `<p class="muted">Drag each <b>process</b> into its <b>Knowledge Area</b>.</p>
+  <div class="drags">${batch.map(p=>`<div class="drag" draggable="true" data-name="${p.name}" data-area="${p.area}">${p.name}${p.critical?'<span class="critical-badge">CRITICAL</span>':''} <small class="muted">(${p.group})</small></div>`).join('')}</div>
+  <div class="drops" style="margin-top:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+    ${areas.map(a=>`<div class="drop" data-k="${a}"><b>${a}</b></div>`).join('')}
+  </div>
+  <div class="row" style="margin-top:12px">
+    <button id="check">Check</button>
+    <button id="clearMarks">Clear</button>
+    <button id="shuffleBatch">Shuffle batch</button>
+    <button id="nextBatch">Next batch</button>
+    <button id="restartSet">Restart set</button>
+  </div>
+  <div id="fb"></div>`;
+  hookSortExpect(w, "area");
+  byId('shuffleBatch').onclick=()=>{ const current=KA_POOL.slice(KA_IDX,end); const shuffled=shuffle(current); KA_POOL.splice(KA_IDX,current.length,...shuffled); sortKA(false); };
+  byId('nextBatch').onclick=()=>{ KA_IDX=end; sortKA(false); };
+  byId('restartSet').onclick=()=>{ KA_POOL=shuffle([...PROCESSES]); KA_IDX=0; sortKA(false); };
+}
+
+// Shared DnD
+function hookSortExpect(scope, attr){
+  const bank = scope.querySelector('.drags');
+  let currentlyDragging = null;
+  
+  scope.querySelectorAll('.drag').forEach(el=>{
+    el.addEventListener('dragstart',e=>{ 
+      currentlyDragging = el;
+      el.dataset.__dragging='1'; 
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', el.dataset.name);
+    });
+    el.addEventListener('dragend',()=>{ 
+      delete el.dataset.__dragging;
+      currentlyDragging = null;
+    });
+    el.addEventListener('click',()=>{ 
+      el.style.background=''; 
+      el.style.borderColor=''; 
+      bank.appendChild(el); 
+    });
+  });
+  
+  scope.querySelectorAll('.drop').forEach(el=>{
+    el.addEventListener('dragover',e=>{
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      el.classList.add('drag-over');
+    });
+    el.addEventListener('dragleave',e=>{
+      el.classList.remove('drag-over');
+    });
+    el.addEventListener('drop',e=>{
+      e.preventDefault();
+      el.classList.remove('drag-over');
+      if(currentlyDragging){ 
+        currentlyDragging.style.background=''; 
+        currentlyDragging.style.borderColor=''; 
+        el.appendChild(currentlyDragging); 
+      }
+    });
+  });
+  
+  bank.addEventListener('dragover',e=>{
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  });
+  bank.addEventListener('drop',e=>{
+    e.preventDefault();
+    if(currentlyDragging){ 
+      currentlyDragging.style.background=''; 
+      currentlyDragging.style.borderColor=''; 
+      bank.appendChild(currentlyDragging); 
+    }
+  });
+  
+  const check=byId('check');
+  if(check) check.onclick=()=>{
+    let c=0,t=0;
+    scope.querySelectorAll('.drop').forEach(el=>{
+      const want = el.dataset.k;
+      el.querySelectorAll('.drag').forEach(item=>{
+        t++; 
+        const processName = item.dataset.name;
+        const process = PROCESSES.find(p => p.name === processName);
+        const ok = ((attr==="group" ? item.dataset.group : item.dataset.area)===want);
+        item.style.borderColor = ok ? '#b7dfc5' : '#f1b0b7';
+        item.style.background = ok ? '#d4edda' : '#f8d7da';
+        if(ok) c++;
+        if(process) updateStats(process, ok);
+      });
+    });
+    const fb = byId('fb');
+    fb.innerHTML = (t>0 && c===t) ? `<div class="good">✓ Perfect! ${c}/${t}</div>` : `<div class="bad">${c}/${t} correct.</div>`;
+  };
+  const clearBtn = byId('clearMarks');
+  if(clearBtn) clearBtn.onclick=()=>{
+    scope.querySelectorAll('.drop .drag').forEach(tag=>{ tag.style.background=''; tag.style.borderColor=''; });
+    const fb = byId('fb'); if(fb) fb.innerHTML='';
+  };
+}
+
+// ===== Mode 3: MCQ Purpose → Process =====
+function mcqPurpose(){
+  byId('batchCounter').textContent = "";
+  const w = byId('work');
+  const s = pick(PROCESSES);
+  const correct = s;
+  let options = shuffle(PROCESSES).slice(0,3).map(x=>x.name);
+  if(!options.includes(correct.name)) options[0]=correct.name;
+  options = shuffle(options);
+  w.innerHTML = `<div class="hint"><b>Purpose:</b> ${s.purpose}</div>
+  <div class="row" style="margin-top:10px">${options.map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join('')}</div>
+  <div id="fb"></div><div class="row"><button id="enterAction">Next</button></div>`;
+  w.querySelectorAll('.opt').forEach(b=>b.onclick=e=>{
+    const chosen = e.currentTarget.dataset.v;
+    const ok = chosen===correct.name;
+    updateStats(correct, ok);
+    byId('fb').innerHTML = ok ? `<div class="good">✓ Correct – <b>${correct.name}</b>  <small class="muted">(${correct.area} • ${correct.group})</small></div>`
+      : `<div class="bad">Best answer: <b>${correct.name}</b> <small class="muted">(${correct.area} • ${correct.group})</small></div>`;
+  });
+  byId('enterAction').onclick=()=>mcqPurpose();
+}
+
+// ===== Mode 4: MCQ Key Output → Process =====
+function mcqOutputs(){
+  byId('batchCounter').textContent = "";
+  const w = byId('work');
+  const processesWithOutputs = PROCESSES.filter(p => p.keyOutputs && p.keyOutputs.length > 0);
+  const s = pick(processesWithOutputs);
+  const outputToShow = pick(s.keyOutputs);
+  const correct = s;
+  
+  let options = shuffle(PROCESSES).slice(0,3).map(x=>x.name);
+  if(!options.includes(correct.name)) options[0]=correct.name;
+  options = shuffle(options);
+  
+  w.innerHTML = `<div class="hint"><b>Key Output:</b> ${outputToShow}</div>
+  <p class="muted">Which process creates this output?</p>
+  <div class="row" style="margin-top:10px">${options.map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join('')}</div>
+  <div id="fb"></div><div class="row"><button id="enterAction">Next</button></div>`;
+  
+  w.querySelectorAll('.opt').forEach(b=>b.onclick=e=>{
+    const chosen = e.currentTarget.dataset.v;
+    const ok = chosen===correct.name;
+    updateStats(correct, ok);
+    byId('fb').innerHTML = ok ? `<div class="good">✓ Correct – <b>${correct.name}</b> creates "${outputToShow}"<br><small class="muted">(${correct.area} • ${correct.group})</small></div>`
+      : `<div class="bad">Correct answer: <b>${correct.name}</b> creates "${outputToShow}"<br><small class="muted">(${correct.area} • ${correct.group})</small></div>`;
+  });
+  byId('enterAction').onclick=()=>mcqOutputs();
+}
+
+// ===== Mode 5: Scenario → Process =====
+function scenarioMode(){
+  byId('batchCounter').textContent = "";
+  const w = byId('work');
+  const s = pick(PROCESSES);
+  const correct = s;
+  
+  let options = shuffle(PROCESSES).slice(0,3).map(x=>x.name);
+  if(!options.includes(correct.name)) options[0]=correct.name;
+  options = shuffle(options);
+  
+  w.innerHTML = `<div class="scenario-box"><b>🎬 Scenario:</b><br>${s.scenario}</div>
+  <p class="muted">Which process should you perform?</p>
+  <div class="row" style="margin-top:10px">${options.map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join('')}</div>
+  <div id="fb"></div><div class="row"><button id="enterAction">Next</button></div>`;
+  
+  w.querySelectorAll('.opt').forEach(b=>b.onclick=e=>{
+    const chosen = e.currentTarget.dataset.v;
+    const ok = chosen===correct.name;
+    updateStats(correct, ok);
+    let feedbackHTML = ok ? `<div class="good">✓ Correct – <b>${correct.name}</b>` 
+      : `<div class="bad">Correct answer: <b>${correct.name}</b>`;
+    feedbackHTML += `<br><small class="muted">${correct.area} • ${correct.group}</small>`;
+    feedbackHTML += `<br><b>When to use:</b> ${correct.whenToUse}</div>`;
+    byId('fb').innerHTML = feedbackHTML;
+  });
+  byId('enterAction').onclick=()=>scenarioMode();
+}
+
+// ===== Mode 6: Process Sequencing =====
+function sequencingMode(){
+  byId('batchCounter').textContent = "";
+  const w = byId('work');
+  
+  // Pick two processes from same KA that are in sequence
+  const sequences = [
+    ["Collect Requirements","Define Scope"],
+    ["Define Scope","Create WBS"],
+    ["Define Activities","Sequence Activities"],
+    ["Sequence Activities","Estimate Activity Durations"],
+    ["Estimate Activity Durations","Develop Schedule"],
+    ["Estimate Costs","Determine Budget"],
+    ["Identify Risks","Perform Qualitative Risk Analysis"],
+    ["Perform Qualitative Risk Analysis","Perform Quantitative Risk Analysis"],
+    ["Perform Quantitative Risk Analysis","Plan Risk Responses"],
+    ["Plan Risk Responses","Implement Risk Responses"],
+    ["Plan Procurement Management","Conduct Procurements"],
+    ["Conduct Procurements","Control Procurements"],
+    ["Control Quality","Validate Scope"],
+    ["Develop Project Charter","Develop Project Management Plan"],
+    ["Develop Project Management Plan","Direct and Manage Project Work"]
+  ];
+  
+  const seq = pick(sequences);
+  const first = PROCESSES.find(p => p.name === seq[0]);
+  const second = PROCESSES.find(p => p.name === seq[1]);
+  
+  const question = Math.random() > 0.5;
+  const processA = question ? first : second;
+  const processB = question ? second : first;
+  
+  w.innerHTML = `<div class="hint"><b>Process Sequencing</b><br>Which comes FIRST in the typical project flow?</div>
+  <div class="scenario-box" style="margin-top:10px">
+    <b>Process A:</b> ${processA.name}<br>
+    <b>Process B:</b> ${processB.name}
+  </div>
+  <div class="row" style="margin-top:10px">
+    <button class="opt" data-v="${processA.name}">Process A: ${processA.name}</button>
+    <button class="opt" data-v="${processB.name}">Process B: ${processB.name}</button>
+  </div>
+  <div id="fb"></div><div class="row"><button id="enterAction">Next</button></div>`;
+  
+  w.querySelectorAll('.opt').forEach(b=>b.onclick=e=>{
+    const chosen = e.currentTarget.dataset.v;
+    const ok = chosen===first.name;
+    updateStats(first, ok);
+    byId('fb').innerHTML = ok ? `<div class="good">✓ Correct! <b>${first.name}</b> comes before <b>${second.name}</b></div>`
+      : `<div class="bad">Correct sequence: <b>${first.name}</b> → <b>${second.name}</b><br><small class="muted">${first.whenToUse}</small></div>`;
+  });
+  byId('enterAction').onclick=()=>sequencingMode();
+}
+
+// ===== Mode 7: Common Confusions =====
+function confusionsMode(){
+  byId('batchCounter').textContent = "";
+  const w = byId('work');
+  const confusion = pick(CONFUSIONS);
+  
+  w.innerHTML = `<div class="hint"><b>⚠️ Common Confusion</b></div>
+  <div class="scenario-box" style="margin-top:10px">
+    <b>Processes:</b> ${confusion.processes.join(" vs ")}<br><br>
+    <b>Question:</b> ${confusion.question}
+  </div>
+  <div class="row" style="margin-top:10px">
+    ${confusion.processes.map(p=>`<button class="opt" data-v="${p}">${p}</button>`).join('')}
+  </div>
+  <div id="fb"></div><div class="row"><button id="enterAction">Next</button></div>`;
+  
+  w.querySelectorAll('.opt').forEach(b=>b.onclick=e=>{
+    const chosen = e.currentTarget.dataset.v;
+    const ok = chosen===confusion.correct;
+    const process = PROCESSES.find(p => p.name === chosen);
+    if(process) updateStats(process, ok);
+    
+    if(ok) {
+      byId('fb').innerHTML = `<div class="good">✓ Correct!<br>${confusion.correctAnswer}<br><br><b>Full Explanation:</b> ${confusion.explanation}</div>`;
+    } else {
+      byId('fb').innerHTML = `<div class="bad">${confusion.wrongAnswer}<br><br><b>Correct:</b> ${confusion.correctAnswer}<br><br><b>Explanation:</b> ${confusion.explanation}</div>`;
+    }
+  });
+  byId('enterAction').onclick=()=>confusionsMode();
+}
+
+// ===== Mode 8: Common ITTO Recognition =====
+function ittoMode(){
+  byId('batchCounter').textContent = "";
+  const w = byId('work');
+  const q = pick(ITTO_QUESTIONS);
+  
+  w.innerHTML = `<div class="hint"><b>Common ITTO Knowledge</b></div>
+  <div class="scenario-box" style="margin-top:10px">
+    <b>Question:</b> ${q.question}
+  </div>
+  <div class="row" style="margin-top:10px">
+    ${q.options.map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join('')}
+  </div>
+  <div id="fb"></div><div class="row"><button id="enterAction">Next</button></div>`;
+  
+  w.querySelectorAll('.opt').forEach(b=>b.onclick=e=>{
+    const chosen = e.currentTarget.dataset.v;
+    const ok = chosen===q.correct;
+    byId('fb').innerHTML = ok ? `<div class="good">✓ Correct!<br>${q.explanation}</div>`
+      : `<div class="bad">Correct answer: <b>${q.correct}</b><br>${q.explanation}</div>`;
+  });
+  byId('enterAction').onclick=()=>ittoMode();
+}
+
+// ===== Mode 9: Integration Deep Dive =====
+function integrationMode(){
+  byId('batchCounter').textContent = "";
+  const w = byId('work');
+  const integrationProcs = PROCESSES.filter(p => p.area === "Integration");
+  const s = pick(integrationProcs);
+  
+  let options = shuffle(integrationProcs).slice(0,3).map(x=>x.name);
+  if(!options.includes(s.name)) options[0]=s.name;
+  options = shuffle(options);
+  
+  w.innerHTML = `<div class="hint"><b>🔗 Integration Management Deep Dive</b><br>
+  Integration has 7 processes that tie everything together.</div>
+  <div class="scenario-box" style="margin-top:10px">
+    <b>Scenario:</b> ${s.scenario}
+  </div>
+  <p class="muted">Which Integration process should you perform?</p>
+  <div class="row" style="margin-top:10px">
+    ${options.map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join('')}
+  </div>
+  <div id="fb"></div><div class="row"><button id="enterAction">Next</button></div>`;
+  
+  w.querySelectorAll('.opt').forEach(b=>b.onclick=e=>{
+    const chosen = e.currentTarget.dataset.v;
+    const ok = chosen===s.name;
+    updateStats(s, ok);
+    let feedbackHTML = ok ? `<div class="good">✓ Correct – <b>${s.name}</b>` 
+      : `<div class="bad">Correct answer: <b>${s.name}</b>`;
+    feedbackHTML += `<br><small class="muted">${s.group}</small>`;
+    feedbackHTML += `<br><b>Purpose:</b> ${s.purpose}`;
+    feedbackHTML += `<br><b>Key Output:</b> ${s.keyOutputs.join(", ")}</div>`;
+    byId('fb').innerHTML = feedbackHTML;
+  });
+  byId('enterAction').onclick=()=>integrationMode();
+}
+
+// ===== Mode 10: Visual Interactive Matrix =====
+function visualMatrixMode(){
+  byId('batchCounter').textContent = "";
+  const w = byId('work');
+  
+  const groups = ["Initiating","Planning","Executing","Monitoring & Controlling","Closing"];
+  const areas = ["Integration","Scope","Schedule","Cost","Quality","Resource","Communications","Risk","Procurement","Stakeholder"];
+  
+  let html = `<div class="hint"><b>📊 Interactive Process Matrix</b><br>
+  Click any cell to see which process belongs there. Color indicates your mastery.</div>
+  <div class="matrix">
+    <div class="matrix-cell header"></div>`;
+  
+  groups.forEach(g => {
+    html += `<div class="matrix-cell header" style="font-size:.65rem">${g.replace(' & ','\n&\n')}</div>`;
+  });
+  
+  areas.forEach(area => {
+    html += `<div class="matrix-cell header">${area}</div>`;
+    groups.forEach(group => {
+      const proc = PROCESSES.find(p => p.area === area && p.group === group);
+      if(proc) {
+        const masteryClass = getMasteryClass(proc.name);
+        html += `<div class="matrix-cell ${masteryClass}" data-process="${proc.name}">✓</div>`;
+      } else {
+        html += `<div class="matrix-cell" style="background:#fafafa;cursor:default">—</div>`;
+      }
+    });
+  });
+  
+  html += '</div><div id="processDetail" style="margin-top:16px"></div>';
+  w.innerHTML = html;
+  
+  w.querySelectorAll('.matrix-cell[data-process]').forEach(cell => {
+    cell.onclick = () => {
+      const procName = cell.dataset.process;
+      const proc = PROCESSES.find(p => p.name === procName);
+      if(proc) {
+        const detail = byId('processDetail');
+        detail.innerHTML = `<div class="scenario-box">
+          <h3 style="margin:0 0 10px 0">${proc.name}${proc.critical?'<span class="critical-badge">CRITICAL</span>':''}</h3>
+          <p><b>Knowledge Area:</b> ${proc.area} | <b>Process Group:</b> ${proc.group}</p>
+          <p><b>Purpose:</b> ${proc.purpose}</p>
+          <p><b>Key Outputs:</b> ${proc.keyOutputs.join(", ")}</p>
+          <p><b>When to Use:</b> ${proc.whenToUse}</p>
+          <p><b>Scenario:</b> ${proc.scenario}</p>
+        </div>`;
+      }
+    };
+  });
+}
+
+function getMasteryClass(processName) {
+  if(!stats.weakProcesses[processName]) return '';
+  const data = stats.weakProcesses[processName];
+  if(data.total < 3) return 'learning';
+  const pct = data.correct / data.total;
+  if(pct >= 0.8) return 'mastered';
+  if(pct >= 0.5) return 'learning';
+  return '';
+}
+
+// ===== Mode 11: Process Recall Challenge =====
+let brainDumpTimer = null;
+let brainDumpStartTime = 0;
+
+function brainDumpMode(){
+  byId('batchCounter').textContent = "";
+  const w = byId('work');
+  
+  const groups = ["Initiating","Planning","Executing","Monitoring & Controlling","Closing"];
+  
+  // Count processes per group
+  const counts = {
+    "Initiating": 2,
+    "Planning": 24,
+    "Executing": 10,
+    "Monitoring & Controlling": 12,
+    "Closing": 1
+  };
+  
+  let html = `<div class="hint"><b>🧠 Process Recall Challenge</b><br>
+  List all 49 processes organized by Process Group. Goal: Complete in under 5 minutes!<br>
+  <small class="muted">Type one process name per line. Spelling must be exact (use title case).</small></div>
+  <div class="timer" id="bdTimer">00:00</div>
+  <div class="row">
+    <button id="bdStart">Start Timer</button>
+    <button id="bdCheck">Check Answers</button>
+    <button id="bdReset">Reset</button>
+    <button id="bdShowAnswers">Show Answers</button>
+  </div>
+  <div style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">`;
+  
+  groups.forEach(group => {
+    const procs = PROCESSES.filter(p => p.group === group);
+    html += `<div style="border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--chip)">
+      <h3 style="margin:0 0 8px 0;font-size:.95rem;color:var(--accent)">${group} (${counts[group]})</h3>
+      <textarea class="bd-textarea" data-group="${group}" style="width:100%;min-height:${Math.max(150, counts[group] * 25)}px;font-size:.85rem;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:inherit" placeholder="One process per line..."></textarea>
+    </div>`;
+  });
+  
+  html += '</div><div id="bdFeedback" style="margin-top:12px"></div>';
+  w.innerHTML = html;
+  
+  byId('bdStart').onclick = () => {
+    if(brainDumpTimer) clearInterval(brainDumpTimer);
+    brainDumpStartTime = Date.now();
+    brainDumpTimer = setInterval(updateBrainDumpTimer, 100);
+    byId('bdStart').disabled = true;
+    // Clear all textareas
+    w.querySelectorAll('.bd-textarea').forEach(ta => {
+      ta.value = '';
+      ta.style.background = '';
+      ta.style.borderColor = '';
+    });
+    byId('bdFeedback').innerHTML = '';
+  };
+  
+  byId('bdCheck').onclick = () => {
+    if(brainDumpTimer) {
+      clearInterval(brainDumpTimer);
+      brainDumpTimer = null;
+    }
+    
+    let totalCorrect = 0;
+    let totalExpected = 49;
+    let resultsByGroup = [];
+    
+    w.querySelectorAll('.bd-textarea').forEach(textarea => {
+      const group = textarea.dataset.group;
+      const expectedProcs = PROCESSES.filter(p => p.group === group);
+      const userLines = textarea.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      
+      const correctProcs = [];
+      const incorrectLines = [];
+      const missingProcs = [];
+      
+      // Check what user entered
+      userLines.forEach(line => {
+        const found = expectedProcs.find(p => p.name.toLowerCase() === line.toLowerCase());
+        if(found && !correctProcs.includes(found.name)) {
+          correctProcs.push(found.name);
+        } else {
+          incorrectLines.push(line);
+        }
+      });
+      
+      // Find missing
+      expectedProcs.forEach(p => {
+        if(!correctProcs.includes(p.name)) {
+          missingProcs.push(p.name);
+        }
+      });
+      
+      totalCorrect += correctProcs.length;
+      
+      // Color code the textarea
+      const pct = correctProcs.length / expectedProcs.length;
+      if(pct === 1) {
+        textarea.style.background = '#d4edda';
+        textarea.style.borderColor = '#b7dfc5';
+      } else if(pct >= 0.5) {
+        textarea.style.background = '#fff3cd';
+        textarea.style.borderColor = '#ffeaa7';
+      } else {
+        textarea.style.background = '#f8d7da';
+        textarea.style.borderColor = '#f1b0b7';
+      }
+      
+      resultsByGroup.push({
+        group,
+        correct: correctProcs.length,
+        expected: expectedProcs.length,
+        incorrect: incorrectLines,
+        missing: missingProcs
+      });
+    });
+    
+    const elapsed = Math.floor((Date.now() - brainDumpStartTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    const timeStr = `${minutes}:${seconds.toString().padStart(2,'0')}`;
+    
+    let feedback = '';
+    if(totalCorrect === totalExpected) {
+      if(elapsed < 300) {
+        feedback = `<div class="good">🎉 PERFECT! All 49 correct in ${timeStr}! You're PMP-ready!</div>`;
+      } else {
+        feedback = `<div class="good">✓ Perfect score (${totalCorrect}/${totalExpected})! Time: ${timeStr}. Practice to get under 5:00!</div>`;
+      }
+    } else {
+      feedback = `<div class="warning"><b>Score: ${totalCorrect}/${totalExpected} in ${timeStr}</b></div>`;
+      resultsByGroup.forEach(r => {
+        if(r.correct < r.expected) {
+          feedback += `<div style="margin-top:8px;font-size:.9rem">
+            <b>${r.group}:</b> ${r.correct}/${r.expected} correct`;
+          if(r.missing.length > 0) {
+            feedback += `<br><small class="muted">Missing: ${r.missing.join(", ")}</small>`;
+          }
+          if(r.incorrect.length > 0) {
+            feedback += `<br><small style="color:var(--bad)">Incorrect: ${r.incorrect.join(", ")}</small>`;
+          }
+          feedback += `</div>`;
+        }
+      });
+    }
+    
+    byId('bdFeedback').innerHTML = feedback;
+    byId('bdStart').disabled = false;
+  };
+  
+  byId('bdReset').onclick = () => {
+    if(brainDumpTimer) clearInterval(brainDumpTimer);
+    brainDumpTimer = null;
+    brainDumpMode();
+  };
+  
+  byId('bdShowAnswers').onclick = () => {
+    if(confirm('Show all answers? This will reveal all 49 processes.')) {
+      groups.forEach(group => {
+        const textarea = w.querySelector(`.bd-textarea[data-group="${group}"]`);
+        const procs = PROCESSES.filter(p => p.group === group);
+        textarea.value = procs.map(p => p.name).join('\n');
+        textarea.style.background = '#e7f3ff';
+        textarea.style.borderColor = '#2874A6';
+      });
+    }
+  };
+}
+
+function updateBrainDumpTimer() {
+  const elapsed = Math.floor((Date.now() - brainDumpStartTime) / 1000);
+  const minutes = Math.floor(elapsed / 60);
+  const seconds = elapsed % 60;
+  byId('bdTimer').textContent = `${minutes}:${seconds.toString().padStart(2,'0')}`;
+}
+
+// ===== Mode 12: Complete the Matrix Challenge =====
+let matrixTimer = null;
+let matrixStartTime = 0;
+
+function matrixFillMode(){
+  byId('batchCounter').textContent = "";
+  const w = byId('work');
+  
+  const groups = ["Initiating","Planning","Executing","Monitoring & Controlling","Closing"];
+  const areas = ["Integration","Scope","Schedule","Cost","Quality","Resource","Communications","Risk","Procurement","Stakeholder"];
+  
+  let html = `<div class="hint"><b>📊 Complete the Matrix Challenge</b><br>
+  Fill in ALL process names in the 5×10 grid. Some cells have multiple processes!<br>
+  <small class="muted">Type one process per line in each cell. Partial names OK for long processes.</small></div>
+  <div class="timer" id="mxTimer">00:00</div>
+  <div class="row">
+    <button id="mxStart">Start Timer</button>
+    <button id="mxCheck">Check Answers</button>
+    <button id="mxReset">Reset</button>
+    <button id="mxShowAnswers">Show Answers</button>
+  </div>
+  <div style="margin-top:10px;overflow-x:auto">
+    <table style="border-collapse:collapse;font-size:.7rem;width:100%">
+      <tr>
+        <th style="border:1px solid var(--border);padding:8px;background:var(--chip);min-width:80px"></th>`;
+  
+  groups.forEach(g => html += `<th style="border:1px solid var(--border);padding:8px;background:var(--chip);min-width:100px;font-size:.65rem">${g.replace(' & ','<br>&')}</th>`);
+  html += '</tr>';
+  
+  areas.forEach(area => {
+    html += `<tr><td style="border:1px solid var(--border);padding:8px;background:var(--chip);font-weight:700;font-size:.75rem">${area}</td>`;
+    groups.forEach(group => {
+      const procs = PROCESSES.filter(p => p.area === area && p.group === group);
+      
+      if(procs.length > 0) {
+        const height = Math.max(60, procs.length * 35);
+        html += `<td style="border:1px solid var(--border);padding:4px;vertical-align:top">
+          <textarea class="mx-cell" data-area="${area}" data-group="${group}" data-expected="${procs.length}" 
+            style="width:100%;min-height:${height}px;font-size:.7rem;padding:4px;border:1px solid var(--border);
+            border-radius:4px;font-family:inherit;resize:vertical" 
+            placeholder="${procs.length} process${procs.length>1?'es':''}"></textarea>
+        </td>`;
+      } else {
+        html += `<td style="border:1px solid var(--border);padding:4px;background:#f5f5f5;text-align:center">—</td>`;
+      }
+    });
+    html += '</tr>';
+  });
+  
+  html += '</table></div><div id="mxFeedback" style="margin-top:12px"></div>';
+  w.innerHTML = html;
+  
+  byId('mxStart').onclick = () => {
+    if(matrixTimer) clearInterval(matrixTimer);
+    matrixStartTime = Date.now();
+    matrixTimer = setInterval(updateMatrixTimer, 100);
+    byId('mxStart').disabled = true;
+    w.querySelectorAll('.mx-cell').forEach(cell => {
+      cell.value = '';
+      cell.style.background = '';
+      cell.style.borderColor = '';
+    });
+    byId('mxFeedback').innerHTML = '';
+  };
+  
+  byId('mxCheck').onclick = () => {
+    if(matrixTimer) {
+      clearInterval(matrixTimer);
+      matrixTimer = null;
+    }
+    
+    let totalCorrect = 0;
+    let totalExpected = 49;
+    let detailedResults = [];
+    
+    w.querySelectorAll('.mx-cell').forEach(cell => {
+      const area = cell.dataset.area;
+      const group = cell.dataset.group;
+      const expectedCount = parseInt(cell.dataset.expected);
+      const expectedProcs = PROCESSES.filter(p => p.area === area && p.group === group);
+      
+      const userLines = cell.value.split('\n')
+        .map(l => l.trim())
+        .filter(l => l.length > 0);
+      
+      const correctProcs = [];
+      const incorrectLines = [];
+      
+      userLines.forEach(line => {
+        const lineLower = line.toLowerCase();
+        const found = expectedProcs.find(p => {
+          const nameLower = p.name.toLowerCase();
+          return nameLower === lineLower || 
+                 nameLower.includes(lineLower) || 
+                 lineLower.includes(nameLower) ||
+                 (lineLower.replace(/[^a-z]/g, '') === nameLower.replace(/[^a-z]/g, ''));
+        });
+        
+        if(found && !correctProcs.includes(found.name)) {
+          correctProcs.push(found.name);
+        } else if(!found) {
+          incorrectLines.push(line);
+        }
+      });
+      
+      const missingProcs = expectedProcs.filter(p => !correctProcs.includes(p.name));
+      totalCorrect += correctProcs.length;
+      
+      const pct = correctProcs.length / expectedCount;
+      if(pct === 1) {
+        cell.style.background = '#d4edda';
+        cell.style.borderColor = '#b7dfc5';
+      } else if(pct >= 0.5) {
+        cell.style.background = '#fff3cd';
+        cell.style.borderColor = '#ffeaa7';
+      } else if(pct > 0) {
+        cell.style.background = '#ffe0e0';
+        cell.style.borderColor = '#ffb0b0';
+      } else {
+        cell.style.background = '#fff';
+        cell.style.borderColor = '#dbe2ee';
+      }
+      
+      if(correctProcs.length < expectedCount) {
+        detailedResults.push({
+          area, group,
+          correct: correctProcs.length,
+          expected: expectedCount,
+          missing: missingProcs.map(p => p.name),
+          incorrect: incorrectLines
+        });
+      }
+    });
+    
+    const elapsed = Math.floor((Date.now() - matrixStartTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    const timeStr = `${minutes}:${seconds.toString().padStart(2,'0')}`;
+    
+    let feedback = '';
+    if(totalCorrect === totalExpected) {
+      if(elapsed < 300) {
+        feedback = `<div class="good">🎉 PERFECT MATRIX! All 49 correct in ${timeStr}! You've mastered the Process Groups × Knowledge Areas!</div>`;
+      } else {
+        feedback = `<div class="good">✓ Complete! ${totalCorrect}/${totalExpected} in ${timeStr}. Practice to get under 5:00!</div>`;
+      }
+    } else {
+      feedback = `<div class="warning"><b>Score: ${totalCorrect}/${totalExpected} in ${timeStr}</b></div>`;
+      
+      if(detailedResults.length > 0 && detailedResults.length <= 10) {
+        feedback += '<div style="margin-top:8px;font-size:.85rem;max-height:300px;overflow-y:auto">';
+        detailedResults.forEach(r => {
+          feedback += `<div style="margin:6px 0;padding:6px;background:var(--chip);border-radius:4px">
+            <b>${r.area} → ${r.group}:</b> ${r.correct}/${r.expected}`;
+          if(r.missing.length > 0) {
+            feedback += `<br><small class="muted">Missing: ${r.missing.join(", ")}</small>`;
+          }
+          if(r.incorrect.length > 0) {
+            feedback += `<br><small style="color:var(--bad)">Not recognized: ${r.incorrect.join(", ")}</small>`;
+          }
+          feedback += `</div>`;
+        });
+        feedback += '</div>';
+      } else if(detailedResults.length > 10) {
+        feedback += `<div style="margin-top:8px"><small class="muted">${detailedResults.length} cells need attention. Check the color coding!</small></div>`;
+      }
+    }
+    
+    byId('mxFeedback').innerHTML = feedback;
+    byId('mxStart').disabled = false;
+  };
+  
+  byId('mxReset').onclick = () => {
+    if(matrixTimer) clearInterval(matrixTimer);
+    matrixTimer = null;
+    matrixFillMode();
+  };
+  
+  byId('mxShowAnswers').onclick = () => {
+    if(confirm('Show all answers? This will reveal all 49 processes in their correct cells.')) {
+      w.querySelectorAll('.mx-cell').forEach(cell => {
+        const area = cell.dataset.area;
+        const group = cell.dataset.group;
+        const procs = PROCESSES.filter(p => p.area === area && p.group === group);
+        cell.value = procs.map(p => p.name).join('\n');
+        cell.style.background = '#e7f3ff';
+        cell.style.borderColor = '#2874A6';
+      });
+    }
+  };
+}
+
+function updateMatrixTimer() {
+  const elapsed = Math.floor((Date.now() - matrixStartTime) / 1000);
+  const minutes = Math.floor(elapsed / 60);
+  const seconds = elapsed % 60;
+  byId('mxTimer').textContent = `${minutes}:${seconds.toString().padStart(2,'0')}`;
+}
+
+// Render function
+function render(){
+  console.log('render() called');
+  const mode = byId('mode').value;
+  const w = byId('work');
+  w.innerHTML="";
+  
+  if(mode==='drag_pg'){ dragPG(true); }
+  else if(mode==='sort_ka'){ sortKA(true); }
+  else if(mode==='mcq_purpose'){ mcqPurpose(); }
+  else if(mode==='mcq_outputs'){ mcqOutputs(); }
+  else if(mode==='scenario'){ scenarioMode(); }
+  else if(mode==='sequencing'){ sequencingMode(); }
+  else if(mode==='confusions'){ confusionsMode(); }
+  else if(mode==='itto_recognition'){ ittoMode(); }
+  else if(mode==='integration_focus'){ integrationMode(); }
+  else if(mode==='visual_matrix'){ visualMatrixMode(); }
+  else if(mode==='brain_dump'){ brainDumpMode(); }
+  else if(mode==='matrix_fill'){ matrixFillMode(); }
+}
+
+// Controls - wrapped in function for safety
+function initializeApp() {
+  console.log('Initializing app...');
+  try {
+    byId('darkToggle').onchange=()=>document.body.classList.toggle('dark', byId('darkToggle').checked);
+    byId('start').onclick=()=>{ resetPools(); render(); };
+    byId('mode').onchange=()=>render();
+    byId('showStatsBtn').onclick=()=>{ showStats(); };
+    document.addEventListener('keydown',e=>{
+      if(isTyping(document.activeElement)) return;
+      if(e.key.toLowerCase()==='r'){ resetPools(); render(); }
+      if(e.key==='Enter'){ const b=byId('enterAction'); if(b) b.click(); }
+      if(e.key.toLowerCase()==='s'){ showStats(); }
+    });
+    
+    // Initial setup
+    resetPools();
+    render();
+    console.log('App initialized successfully');
+  } catch(e) {
+    console.error('Initialization error:', e);
+    byId('work').innerHTML = '<div style="color:red;padding:20px"><b>Error:</b> ' + e.message + '</div>';
+  }
+}
+
+// Run after DOM is ready
+if(document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  initializeApp();
+}
+</script>
+</body>
+</html>

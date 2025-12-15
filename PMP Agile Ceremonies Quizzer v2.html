@@ -1,0 +1,1162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PMP Agile Ceremonies Quizzer</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' ry='12' fill='%234A90A4'/><text x='50%' y='58%' text-anchor='middle' font-size='18' font-family='Verdana' fill='white'>AGI</text></svg>">
+<style>
+:root{
+  --accent:#4A90A4;
+  --bg:#f6f7fb;--panel:#ffffff;--border:#dbe2ee;--text:#0a1522;--muted:#556273;--chip:#eef3f8;--dash:#cfd9e3;
+  --good:#155724;--goodbg:#d4edda;--bad:#7a1d1d;--badbg:#f8d7da;--warning:#856404;--warningbg:#fff3cd
+}
+.dark{--bg:#0c1015;--panel:#121a23;--border:#223042;--text:#e8edf3;--muted:#9ab0c6;--chip:#172233;--dash:#2a374b;--good:#69db7c;--goodbg:#0f1a12;--bad:#ff8787;--badbg:#1a0f10;--warning:#ffd43b;--warningbg:#1a1508}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;color:var(--text);background:var(--bg)}
+header{display:flex;gap:12px;align-items:center;padding:14px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(1.08rem,2.6vw,1.45rem);color:var(--accent)}
+main{max-width:1400px;margin:0 auto;padding:16px;display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:1100px){main{grid-template-columns:1fr 420px}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.card h2{margin:0;padding:12px 14px;border-bottom:1px solid var(--border);font-size:1.02rem}
+.card .content{padding:12px 14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+select,button,input{background:#fff;border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px}
+.dark select,.dark button,.dark input{background:#0f141b;border-color:#263244;color:#e9eef3}
+button{cursor:pointer;font-weight:600}
+button:hover{opacity:0.9}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:var(--chip);border:1px solid var(--border);font-size:.86rem}
+.muted{color:var(--muted);opacity:.95}
+.hint{background:var(--chip);border-left:3px solid var(--accent);padding:12px;border-radius:10px;margin-top:8px}
+.good{color:var(--good);background:var(--goodbg);padding:8px 10px;border-radius:10px;border:1px solid #b7dfc5}
+.bad{color:var(--bad);background:var(--badbg);padding:8px 10px;border-radius:10px;border:1px solid #f1b0b7}
+.warning{color:var(--warning);background:var(--warningbg);padding:8px 10px;border-radius:10px;border:1px solid #ffeaa7}
+small{font-size:.86rem}
+hr{border:none;border-top:1px solid var(--border);margin:12px 0}
+.counter{margin-left:auto;color:var(--muted);font-size:.9rem}
+.fixed{position:sticky;top:72px;max-height:calc(100vh - 88px);overflow-y:auto}
+
+/* Drag and Drop */
+.drag{padding:10px 14px;border:1px dashed var(--dash);border-radius:10px;background:var(--panel);cursor:grab;text-align:center;font-size:.95rem;font-weight:600;transition:all 0.2s}
+.drag:active{cursor:grabbing}
+.drag.dragging{opacity:0.5;transform:scale(0.95)}
+.dark .drag{background:#0f141b}
+.drags,.drops{display:grid;gap:10px;margin:10px 0}
+.drags{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.drop{min-height:70px;border:2px dashed var(--dash);border-radius:10px;background:var(--chip);padding:8px;display:flex;flex-direction:column;gap:8px;transition:all 0.2s}
+.drop.drag-over{background:#e8f4ff;border-color:var(--accent);border-width:3px}
+.drop .drag{background:white;border:1px solid var(--border);cursor:grab}
+.dark .drop{background:#0f141b}
+.dark .drop .drag{background:#1a222d}
+.drop-label{font-weight:700;color:var(--accent);text-align:center;margin-bottom:4px;font-size:.9rem}
+
+/* Order drops - horizontal style */
+.order-drops{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+@media(max-width:700px){.order-drops{grid-template-columns:1fr}}
+.order-drop{min-height:80px;border:2px dashed var(--dash);border-radius:10px;background:var(--chip);padding:8px;display:flex;flex-direction:column;gap:6px}
+.order-drop.drag-over{background:#e8f4ff;border-color:var(--accent)}
+.order-label{font-weight:700;font-size:.75rem;color:var(--accent);text-align:center;text-transform:uppercase;letter-spacing:0.5px}
+
+/* Matching grid */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+@media(max-width:700px){.match-grid{grid-template-columns:1fr}}
+.match-col h3{margin:0 0 10px;font-size:.9rem;color:var(--accent)}
+
+/* MCQ */
+.opt{padding:12px 16px;background:white;border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;margin:6px 0;text-align:left}
+.opt:hover{background:var(--chip);border-color:var(--accent)}
+.opt.selected{background:var(--accent);color:white;border-color:var(--accent)}
+.dark .opt{background:#0f141b}
+.dark .opt:hover{background:#1a222d}
+
+.scenario-box{background:var(--chip);border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0}
+
+/* Reference tables */
+.ref-table{width:100%;font-size:.82rem;margin:8px 0;border-collapse:collapse}
+.ref-table th{background:var(--accent);color:white;padding:8px 6px;text-align:left}
+.ref-table td{padding:6px;border-bottom:1px solid var(--border)}
+.ref-table tr:hover{background:var(--chip)}
+
+/* Attendee section */
+.attendee-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:12px 0}
+.attendee{padding:10px;background:var(--chip);border:2px solid var(--border);border-radius:10px;text-align:center;cursor:pointer;font-size:.85rem;font-weight:600;transition:all 0.2s}
+.attendee:hover{border-color:var(--accent)}
+.attendee.selected-yes{background:#d4edda;border-color:#28a745;color:#155724}
+.attendee.selected-no{background:#f8d7da;border-color:#dc3545;color:#7a1d1d}
+
+/* Role badges */
+.role-badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:.7rem;font-weight:700;margin-left:6px}
+.role-po{background:#e8f4fd;color:#1565c0}
+.role-sm{background:#fff3e0;color:#e65100}
+.role-dt{background:#e8f5e9;color:#2e7d32}
+.role-stakeholder{background:#fce4ec;color:#c2185b}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:8px 14px;background:var(--chip);border:1px solid var(--border);border-radius:8px 8px 0 0;cursor:pointer;font-size:.85rem;font-weight:600}
+.tab.active{background:var(--accent);color:white;border-color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎯 PMP Agile Ceremonies Quizzer</h1>
+  <div style="flex:1"></div>
+  <label class="pill"><input type="checkbox" id="darkToggle"> Dark mode</label>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Practice Modes</h2>
+    <div class="content">
+      <div class="row">
+        <label class="muted">Select Mode</label>
+        <select id="mode">
+          <option value="order">1️⃣ Ceremony Order (Drag & Drop)</option>
+          <option value="matching">2️⃣ Match Ceremony to Description</option>
+          <option value="attendees">3️⃣ Who Attends? (Critical for Exam!)</option>
+          <option value="antipatterns">4️⃣ Identify Antipatterns</option>
+          <option value="scenarios">5️⃣ Scenario-Based Questions</option>
+          <option value="artifacts">6️⃣ Scrum Artifacts & Events</option>
+          <option value="pmrole">7️⃣ PM Role in Agile (Exam Critical!)</option>
+        </select>
+        <button id="start">Start / Reset</button>
+        <span id="batchCounter" class="counter"></span>
+      </div>
+      <div id="work"></div>
+    </div>
+  </section>
+
+  <aside class="card fixed">
+    <h2>📚 Agile Ceremonies Reference</h2>
+    <div class="content">
+      <div class="tabs">
+        <div class="tab active" onclick="showRefTab('ceremonies')">Ceremonies</div>
+        <div class="tab" onclick="showRefTab('attendees')">Attendees</div>
+        <div class="tab" onclick="showRefTab('artifacts')">Artifacts</div>
+      </div>
+      
+      <div id="ref-ceremonies">
+        <div class="hint">
+          <b style="color:#4A90A4">Sprint Ceremonies (In Order)</b>
+          <table class="ref-table" style="margin-top:8px">
+            <tr><td><b>1. Sprint Planning</b></td><td>Collaborative event where the Scrum Team plans work for the current sprint. Defines the Sprint Goal and selects backlog items.</td></tr>
+            <tr><td><b>2. Daily Standup</b></td><td>15-minute timebox. Team reviews progress, declares intentions, highlights obstacles. Also called Daily Scrum.</td></tr>
+            <tr><td><b>3. Backlog Refinement</b></td><td>Ongoing activity (not an official Scrum event). Backlog is elaborated and re-prioritized. ~1 hour/week goal.</td></tr>
+            <tr><td><b>4. Sprint Review</b></td><td>Demo of completed work to PO and stakeholders. Get feedback, accept/decline stories. Also called "Demo".</td></tr>
+            <tr><td><b>5. Sprint Retrospective</b></td><td>Team inspects process - what worked, what didn't. Creates improvement items for next sprint. INTERNAL team focus.</td></tr>
+          </table>
+        </div>
+
+        <div class="hint" style="margin-top:10px">
+          <b style="color:#4A90A4">Key Distinctions</b>
+          <div style="font-size:.85rem;line-height:1.6;margin-top:8px">
+            <b>Review vs Retrospective:</b><br>
+            • Review = PRODUCT focus (demo to stakeholders)<br>
+            • Retrospective = PROCESS focus (team only)<br><br>
+            <b>Who runs standups?</b><br>
+            • The TEAM runs standups (self-organizing)<br>
+            • Scrum Master may facilitate but doesn't lead<br>
+            • NOT a status meeting for management!
+          </div>
+        </div>
+      </div>
+
+      <div id="ref-attendees" style="display:none">
+        <div class="hint">
+          <b style="color:#4A90A4">Ceremony Attendees (PM Perspective)</b>
+          <table class="ref-table" style="margin-top:8px">
+            <tr><th>Ceremony</th><th>Attendees</th><th>PM Role</th></tr>
+            <tr><td><b>Sprint Planning</b></td><td>PO, SM/PM, Dev Team</td><td>Facilitate, don't assign tasks</td></tr>
+            <tr><td><b>Daily Standup</b></td><td>Dev Team (PO, PM optional)</td><td>Observe, note impediments to remove</td></tr>
+            <tr><td><b>Backlog Refinement</b></td><td>PO, Dev Team, PM</td><td>Identify dependencies/risks</td></tr>
+            <tr><td><b>Sprint Review</b></td><td>Everyone + Stakeholders</td><td>Ensure stakeholder attendance</td></tr>
+            <tr><td><b>Retrospective</b></td><td>PO, SM/PM, Dev Team ONLY</td><td>Participate, protect safe space</td></tr>
+          </table>
+        </div>
+
+        <div class="hint" style="margin-top:10px;background:#e8f4fd;border-color:#1565c0">
+          <b style="color:#1565c0">📋 PM as Servant Leader in Agile</b>
+          <div style="font-size:.85rem;line-height:1.6;margin-top:8px;color:#1565c0">
+            <b>DO:</b> Remove impediments, facilitate, coach, protect the team, enable collaboration<br><br>
+            <b>DON'T:</b> Assign tasks, collect status, make decisions for team, bypass PO on scope
+          </div>
+        </div>
+
+        <div class="hint" style="margin-top:10px;background:#fff3cd;border-color:#ffc107">
+          <b style="color:#856404">⚠️ Common Exam Traps</b>
+          <div style="font-size:.85rem;line-height:1.6;margin-top:8px;color:#856404">
+            • PM should NOT "run" standups as status meetings<br>
+            • PM should NOT assign tasks (team self-organizes)<br>
+            • PM should NOT add scope mid-sprint (that's PO)<br>
+            • PM SHOULD remove impediments surfaced at standup<br>
+            • PM SHOULD ensure stakeholders attend Sprint Review<br>
+            • PM SHOULD protect Retrospective from outsiders
+          </div>
+        </div>
+      </div>
+
+      <div id="ref-artifacts" style="display:none">
+        <div class="hint">
+          <b style="color:#4A90A4">Scrum Artifacts</b>
+          <table class="ref-table" style="margin-top:8px">
+            <tr><td><b>Product Backlog</b></td><td>Ordered list of all requirements. Owned by Product Owner.</td></tr>
+            <tr><td><b>Sprint Backlog</b></td><td>Items selected for current sprint + plan to deliver increment.</td></tr>
+            <tr><td><b>Increment</b></td><td>Sum of all completed items - must be "Done" and usable.</td></tr>
+          </table>
+        </div>
+
+        <div class="hint" style="margin-top:10px">
+          <b style="color:#4A90A4">Scrum Roles</b>
+          <table class="ref-table" style="margin-top:8px">
+            <tr><td><b>Product Owner</b></td><td>Maximizes product value. Manages backlog. One person (not committee).</td></tr>
+            <tr><td><b>Scrum Master</b></td><td>Servant leader. Removes impediments. Coaches team. Facilitates events.</td></tr>
+            <tr><td><b>Development Team</b></td><td>Cross-functional, self-organizing. 3-9 members. Delivers increment.</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<script>
+const byId = id => document.getElementById(id);
+
+// Reference tab switching
+function showRefTab(tab) {
+  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('[id^="ref-"]').forEach(r => r.style.display = 'none');
+  event.target.classList.add('active');
+  byId('ref-' + tab).style.display = 'block';
+}
+
+// ========== DATA ==========
+
+const CEREMONIES = [
+  { id: 'planning', name: 'Sprint Planning', order: 1 },
+  { id: 'standup', name: 'Daily Standup', order: 2 },
+  { id: 'refinement', name: 'Backlog Refinement', order: 3 },
+  { id: 'review', name: 'Sprint Review', order: 4 },
+  { id: 'retro', name: 'Retrospective', order: 5 }
+];
+
+const CEREMONY_DESCRIPTIONS = [
+  {
+    ceremony: 'Sprint Planning',
+    description: 'A collaborative event in Scrum in which the Scrum team plans the work for the current sprint.',
+    details: 'The team clarifies backlog items, acceptance criteria, and work effort required to meet the upcoming iteration commitment.'
+  },
+  {
+    ceremony: 'Daily Standup',
+    description: 'A brief 15-minute collaboration meeting during which the project team reviews progress, declares intentions, and highlights obstacles.',
+    details: 'Also called Daily Scrum. Teams use it to microcommit to each other and ensure work flows smoothly. NOT a status meeting!'
+  },
+  {
+    ceremony: 'Backlog Refinement',
+    description: 'A meeting where the backlog is progressively elaborated and re-prioritized to identify work for upcoming iterations.',
+    details: 'Goal: spend no more than 1 hour per week. Product Owner presents story ideas for team to learn about challenges.'
+  },
+  {
+    ceremony: 'Sprint Review',
+    description: 'A review at the end of each iteration with the product owner and customer stakeholders to demonstrate completed work and get feedback.',
+    details: 'Also called Demo. Product Owner accepts or declines stories. Stakeholders see actual progress and provide feedback.'
+  },
+  {
+    ceremony: 'Retrospective',
+    description: 'A regularly occurring workshop in which participants explore their work and results to improve both process and product.',
+    details: 'Attended by PO, SM, and Development Team. Analyzes what is working well and what is not. Creates improvement items.'
+  }
+];
+
+const ATTENDEE_QUESTIONS = [
+  {
+    ceremony: 'Sprint Planning',
+    question: 'Who participates in Sprint Planning? (Select all that apply)',
+    attendees: [
+      { name: 'Product Owner', correct: true, role: 'po' },
+      { name: 'Scrum Master/PM', correct: true, role: 'sm' },
+      { name: 'Development Team', correct: true, role: 'dt' },
+      { name: 'Customer Stakeholders', correct: false, role: 'stakeholder' },
+      { name: 'Project Sponsor', correct: false, role: 'stakeholder' },
+      { name: 'Functional Manager', correct: false, role: 'stakeholder' }
+    ],
+    explanation: 'Sprint Planning requires the full Scrum Team (PO, SM/PM as servant leader, Development Team). The PM facilitates but does NOT assign tasks - the team self-selects work. Stakeholders rarely attend.'
+  },
+  {
+    ceremony: 'Daily Standup',
+    question: 'Who participates in Daily Standup, and what is the PM\'s role?',
+    attendees: [
+      { name: 'Development Team', correct: true, role: 'dt' },
+      { name: 'PM (as observer/facilitator)', correct: true, role: 'sm' },
+      { name: 'Product Owner', correct: true, role: 'po' },
+      { name: 'PM (collecting status)', correct: false, role: 'stakeholder' },
+      { name: 'PM (assigning daily tasks)', correct: false, role: 'stakeholder' },
+      { name: 'Sponsor', correct: false, role: 'stakeholder' }
+    ],
+    explanation: 'The TEAM runs the standup and self-organizes. A PM using servant leadership may attend/facilitate but does NOT collect status reports or assign tasks. It\'s for the team to coordinate with each other!'
+  },
+  {
+    ceremony: 'Sprint Review',
+    question: 'Who should attend the Sprint Review (Demo)?',
+    attendees: [
+      { name: 'Product Owner', correct: true, role: 'po' },
+      { name: 'Scrum Master/PM', correct: true, role: 'sm' },
+      { name: 'Development Team', correct: true, role: 'dt' },
+      { name: 'Customer Stakeholders', correct: true, role: 'stakeholder' },
+      { name: 'Project Sponsor', correct: true, role: 'stakeholder' },
+      { name: 'End Users', correct: true, role: 'stakeholder' }
+    ],
+    explanation: 'Sprint Review is WHERE STAKEHOLDERS BELONG! The PM helps ensure the right stakeholders attend. Everyone sees the working product and provides feedback. PO accepts/declines stories.'
+  },
+  {
+    ceremony: 'Retrospective',
+    question: 'Who attends the Sprint Retrospective?',
+    attendees: [
+      { name: 'Product Owner', correct: true, role: 'po' },
+      { name: 'Scrum Master/PM', correct: true, role: 'sm' },
+      { name: 'Development Team', correct: true, role: 'dt' },
+      { name: 'Customer Stakeholders', correct: false, role: 'stakeholder' },
+      { name: 'Project Sponsor', correct: false, role: 'stakeholder' },
+      { name: 'Functional Manager', correct: false, role: 'stakeholder' }
+    ],
+    explanation: 'Retrospective is INTERNAL to the Scrum Team only. The PM (as servant leader) participates to help improve processes, but NO external stakeholders - the team needs psychological safety.'
+  },
+  {
+    ceremony: 'Backlog Refinement',
+    question: 'Who participates in Backlog Refinement?',
+    attendees: [
+      { name: 'Product Owner', correct: true, role: 'po' },
+      { name: 'Development Team', correct: true, role: 'dt' },
+      { name: 'PM (facilitating)', correct: true, role: 'sm' },
+      { name: 'PM (defining requirements)', correct: false, role: 'stakeholder' },
+      { name: 'Customer', correct: false, role: 'stakeholder' },
+      { name: 'PMO', correct: false, role: 'stakeholder' }
+    ],
+    explanation: 'PO leads refinement (owns requirements). Dev Team estimates and clarifies. PM may facilitate as servant leader but does NOT define requirements - that\'s the PO\'s job!'
+  },
+  {
+    ceremony: 'All Ceremonies',
+    question: 'What should a PM do in agile ceremonies? (Green = Yes, Red = No)',
+    attendees: [
+      { name: 'Remove impediments', correct: true, role: 'sm' },
+      { name: 'Facilitate collaboration', correct: true, role: 'sm' },
+      { name: 'Coach the team', correct: true, role: 'sm' },
+      { name: 'Assign tasks to individuals', correct: false, role: 'stakeholder' },
+      { name: 'Collect status for management', correct: false, role: 'stakeholder' },
+      { name: 'Make decisions for the team', correct: false, role: 'stakeholder' }
+    ],
+    explanation: 'In agile, the PM is a SERVANT LEADER. They enable the team, remove obstacles, and foster collaboration. They do NOT command/control, assign tasks, or act as a status collector. "The value of PMs is in their ability to make everyone else better."'
+  }
+];
+
+const ANTIPATTERN_QUESTIONS = [
+  {
+    scenario: 'During the Daily Standup, the Project Manager asks each team member to report what they did yesterday, what they\'ll do today, and any blockers - then compiles this into a status report for senior management.',
+    question: 'What should the PM do differently?',
+    options: [
+      'Let the team run the standup; PM removes impediments reported',
+      'Continue - this is proper PM coordination',
+      'Skip the standup and just collect status via email',
+      'Have each person report directly to the PM instead'
+    ],
+    correct: 'Let the team run the standup; PM removes impediments reported',
+    explanation: 'The PM as servant leader should let the TEAM run the standup for themselves. The PM\'s value is in removing the impediments that surface, not in collecting status. "The value of PMs is in their ability to make everyone else better."'
+  },
+  {
+    scenario: 'The team starts solving a technical problem that emerged during the Daily Standup. The discussion goes on for 25 minutes as developers debate the best approach. The PM is present.',
+    question: 'What should the PM do?',
+    options: [
+      'Suggest moving the discussion to a "parking lot" meeting after standup',
+      'Let it continue - the team is collaborating',
+      'Take over and make the technical decision',
+      'End the standup and assign someone to solve it'
+    ],
+    correct: 'Suggest moving the discussion to a "parking lot" meeting after standup',
+    explanation: 'Standups are for SURFACING problems, not solving them. The PM as facilitator should help the team stay timeboxed (15 min) and suggest a separate meeting for problem-solving. This keeps standup efficient for everyone.'
+  },
+  {
+    scenario: 'The PM invites customer stakeholders and the project sponsor to the Sprint Retrospective so they can hear directly how the team plans to improve.',
+    question: 'What is wrong with this approach?',
+    options: [
+      'Stakeholders should not attend retrospectives - team needs safety',
+      'This improves transparency with stakeholders',
+      'Good stakeholder engagement by the PM',
+      'Nothing - this shows PM is being inclusive'
+    ],
+    correct: 'Stakeholders should not attend retrospectives - team needs safety',
+    explanation: 'Retrospectives are INTERNAL to the Scrum Team. The PM should protect this safe space where the team can honestly discuss what isn\'t working. Stakeholders belong at the Sprint Review, not the Retrospective.'
+  },
+  {
+    scenario: 'The Development Team demonstrates completed features at the Sprint Review, but no external stakeholders are present - only the Scrum Team and PM.',
+    question: 'What should the PM have done differently?',
+    options: [
+      'Ensured stakeholders were invited - Review needs their feedback',
+      'Nothing - this keeps the meeting efficient',
+      'Recorded it to send to stakeholders later',
+      'Presented on behalf of the team to stakeholders separately'
+    ],
+    correct: 'Ensured stakeholders were invited - Review needs their feedback',
+    explanation: 'Part of the PM\'s servant leader role is stakeholder engagement. Sprint Review SHOULD include stakeholders to get feedback, show progress, and help the PO make decisions. The PM helps ensure the right people attend.'
+  },
+  {
+    scenario: 'During Sprint Planning, the PM reviews the product backlog and assigns specific user stories to individual team members based on their skills and past performance.',
+    question: 'What antipattern is the PM exhibiting?',
+    options: [
+      'Command and control - team should self-select work',
+      'Good resource management',
+      'Appropriate use of PM authority',
+      'Efficient task allocation'
+    ],
+    correct: 'Command and control - team should self-select work',
+    explanation: 'Agile teams are SELF-ORGANIZING. The PM should facilitate the planning session, but the team collectively decides who works on what. Assigning tasks undermines team empowerment and ownership.'
+  },
+  {
+    scenario: 'A stakeholder approaches the PM asking for a new feature to be added mid-sprint. The PM agrees it\'s important and tells the development team to add it to the current sprint.',
+    question: 'What should the PM have done instead?',
+    options: [
+      'Direct the stakeholder to the Product Owner for backlog prioritization',
+      'Add it to the sprint - PMs manage scope',
+      'Tell the stakeholder no without discussion',
+      'Have the team vote on adding it'
+    ],
+    correct: 'Direct the stakeholder to the Product Owner for backlog prioritization',
+    explanation: 'The PRODUCT OWNER owns the backlog and prioritization. The PM should not bypass the PO by adding scope. The PM\'s role is to help stakeholders understand the process and direct them appropriately.'
+  },
+  {
+    scenario: 'The team\'s velocity has been declining for three sprints. The PM schedules a meeting with each team member individually to understand why they\'re underperforming.',
+    question: 'What\'s a better approach for the PM?',
+    options: [
+      'Use the Retrospective to let the team identify issues collectively',
+      'Continue individual meetings - PM needs to know the cause',
+      'Report the declining velocity to senior management',
+      'Replace underperforming team members'
+    ],
+    correct: 'Use the Retrospective to let the team identify issues collectively',
+    explanation: 'The Retrospective is the proper forum for process improvement. Individual "performance" meetings undermine team trust and self-organization. The PM should facilitate team problem-solving, not conduct investigations.'
+  }
+];
+
+const SCENARIO_QUESTIONS = [
+  {
+    scenario: 'A team is demonstrating completed user stories. The Product Owner reviews each story and marks some as "accepted" and others as needing more work. Several business stakeholders provide feedback on the user interface. The PM facilitated getting the right stakeholders in the room.',
+    question: 'Which ceremony is taking place?',
+    options: ['Sprint Review', 'Sprint Planning', 'Retrospective', 'Backlog Refinement'],
+    correct: 'Sprint Review',
+    explanation: 'Sprint Review (Demo) is where the team demonstrates completed work. The PO accepts/declines stories, and stakeholders provide feedback. The PM\'s role is ensuring stakeholder attendance and engagement.'
+  },
+  {
+    scenario: 'The Scrum Team is discussing what worked well last sprint and what could be improved. They vote on improvement items and select two to focus on next sprint. The PM participates as a team member, and no external stakeholders are present.',
+    question: 'Which ceremony is taking place?',
+    options: ['Retrospective', 'Sprint Review', 'Sprint Planning', 'Backlog Refinement'],
+    correct: 'Retrospective',
+    explanation: 'Retrospective focuses on PROCESS improvement. Only the Scrum Team attends (PM included as servant leader) - no external stakeholders. The PM helps facilitate but doesn\'t dominate.'
+  },
+  {
+    scenario: 'The Product Owner presents upcoming story ideas to the team. Developers ask clarifying questions and the team estimates story sizes relative to each other. The PM observes and notes a dependency that might become an impediment.',
+    question: 'Which ceremony is taking place?',
+    options: ['Backlog Refinement', 'Sprint Planning', 'Sprint Review', 'Daily Standup'],
+    correct: 'Backlog Refinement',
+    explanation: 'Backlog Refinement is where the PO presents stories, the team estimates and asks questions. The PM adds value by identifying impediments and dependencies to address proactively.'
+  },
+  {
+    scenario: 'The team commits to completing 8 user stories this sprint after reviewing their velocity. The Product Owner clarifies acceptance criteria, and the team breaks down stories into tasks. The PM ensures the team isn\'t overcommitting.',
+    question: 'Which ceremony is taking place?',
+    options: ['Sprint Planning', 'Backlog Refinement', 'Sprint Review', 'Retrospective'],
+    correct: 'Sprint Planning',
+    explanation: 'Sprint Planning is where the team commits to work, clarifies acceptance criteria, and creates tasks. The PM as servant leader helps protect the team from overcommitment while letting them self-organize.'
+  },
+  {
+    scenario: 'Each team member briefly shares what they completed yesterday, what they plan today, and one mentions a blocker with an external vendor. The PM notes the blocker to follow up. The meeting is 12 minutes.',
+    question: 'What should the PM do with the blocker mentioned?',
+    options: ['Work to remove the impediment after the standup', 'Solve it immediately during standup', 'Assign someone to handle it', 'Report it to senior management'],
+    correct: 'Work to remove the impediment after the standup',
+    explanation: 'Removing impediments is a key PM/servant leader responsibility. But don\'t solve problems DURING standup - note them and address afterward. This keeps standup timeboxed and respects the team\'s time.'
+  },
+  {
+    scenario: 'A senior stakeholder demands to know why the project is "behind schedule." The PM is asked to provide a detailed status report on individual team member productivity.',
+    question: 'What is the BEST response from an agile PM?',
+    options: ['Show team velocity trends and burndown charts instead', 'Provide individual productivity metrics as requested', 'Refuse to provide any metrics', 'Schedule individual performance reviews'],
+    correct: 'Show team velocity trends and burndown charts instead',
+    explanation: 'Agile measures TEAM performance, not individuals. The PM should educate stakeholders on agile metrics (velocity, burndown, burnup) that show team progress without undermining team trust and collaboration.'
+  },
+  {
+    scenario: 'The team has completed Sprint Planning and committed to the Sprint Backlog. Two days later, a critical production bug is discovered that requires immediate attention.',
+    question: 'What should the PM do?',
+    options: ['Facilitate discussion between team and PO about sprint scope adjustment', 'Add the bug to the sprint - it\'s critical', 'Tell the team to work overtime to fit it in', 'Wait until next sprint to address it'],
+    correct: 'Facilitate discussion between team and PO about sprint scope adjustment',
+    explanation: 'The PM facilitates but doesn\'t unilaterally change scope. The PO and team must discuss trade-offs together. If something is added, something else likely needs to be removed to protect sustainable pace.'
+  }
+];
+
+const ARTIFACT_QUESTIONS = [
+  {
+    question: 'What are the THREE Scrum Artifacts?',
+    options: [
+      'Product Backlog, Sprint Backlog, Increment',
+      'Sprint Goal, Burndown Chart, Velocity',
+      'User Stories, Tasks, Epics',
+      'Definition of Done, Acceptance Criteria, Story Points'
+    ],
+    correct: 'Product Backlog, Sprint Backlog, Increment',
+    explanation: 'The three Scrum Artifacts are: Product Backlog (ordered list of all requirements), Sprint Backlog (selected items + plan), and Increment (sum of completed items).'
+  },
+  {
+    question: 'What are the FIVE Scrum Events?',
+    options: [
+      'Sprint, Sprint Planning, Daily Scrum, Sprint Review, Sprint Retrospective',
+      'Planning, Execution, Monitoring, Controlling, Closing',
+      'Backlog Refinement, Sprint Planning, Daily Standup, Demo, Retro',
+      'Kickoff, Daily Standup, Review, Demo, Closeout'
+    ],
+    correct: 'Sprint, Sprint Planning, Daily Scrum, Sprint Review, Sprint Retrospective',
+    explanation: 'The Sprint itself is a container event. The four events within it are: Sprint Planning, Daily Scrum, Sprint Review, and Sprint Retrospective. Note: Backlog Refinement is an activity, not an official Scrum event.'
+  },
+  {
+    question: 'Who is responsible for ordering the Product Backlog?',
+    options: [
+      'Product Owner',
+      'Scrum Master',
+      'Development Team',
+      'Project Manager'
+    ],
+    correct: 'Product Owner',
+    explanation: 'The Product Owner is responsible for maximizing product value by managing and ordering the Product Backlog. The PM should direct stakeholders to the PO for backlog changes, not make changes themselves.'
+  },
+  {
+    question: 'What is the Scrum Master/PM\'s primary responsibility in agile?',
+    options: [
+      'Servant leadership - removing impediments and enabling the team',
+      'Assigning tasks to team members',
+      'Reporting status to stakeholders',
+      'Approving completed work'
+    ],
+    correct: 'Servant leadership - removing impediments and enabling the team',
+    explanation: 'The PM in agile is a servant leader who enables the team, removes obstacles, and fosters collaboration. They don\'t assign tasks, collect status, or approve work - that\'s command and control.'
+  },
+  {
+    question: 'What characterizes the Development Team in Scrum?',
+    options: [
+      'Cross-functional and self-organizing',
+      'Specialists organized by function',
+      'Led by a team lead who assigns work',
+      'Reports to the Project Manager daily'
+    ],
+    correct: 'Cross-functional and self-organizing',
+    explanation: 'Scrum Development Teams are cross-functional (have all skills needed) and self-organizing (collectively decide how to accomplish work). The PM enables this, not controls it.'
+  }
+];
+
+const PM_ROLE_QUESTIONS = [
+  {
+    scenario: 'The team is struggling to get a response from an external vendor that is blocking their work. Several stories are stalled waiting for API documentation.',
+    question: 'What should the PM do?',
+    options: [
+      'Work to remove this impediment by escalating or finding alternatives',
+      'Tell the team to work on other stories until the vendor responds',
+      'Document the delay for the status report',
+      'Have the PO reprioritize the backlog to avoid the dependency'
+    ],
+    correct: 'Work to remove this impediment by escalating or finding alternatives',
+    explanation: 'Removing impediments is THE core PM/servant leader responsibility. This is where PMs add value in agile - clearing obstacles so the team can focus on delivery.'
+  },
+  {
+    scenario: 'A functional manager asks the PM for a detailed report on how many hours each team member worked last sprint and their individual output.',
+    question: 'What is the BEST response?',
+    options: [
+      'Explain agile measures team velocity, not individual productivity',
+      'Provide the requested individual metrics',
+      'Refuse and tell them to ask the Scrum Master',
+      'Track individual hours going forward to provide the data'
+    ],
+    correct: 'Explain agile measures team velocity, not individual productivity',
+    explanation: 'Agile focuses on TEAM performance, not individuals. The PM should educate stakeholders on why this matters - individual tracking undermines collaboration and self-organization.'
+  },
+  {
+    scenario: 'During Sprint Planning, a team member suggests they can complete 50% more story points than their historical velocity indicates.',
+    question: 'What should the PM do?',
+    options: [
+      'Facilitate discussion about sustainable pace based on actual velocity data',
+      'Encourage the ambitious commitment to push the team',
+      'Override the suggestion and set a lower target',
+      'Let the team commit to whatever they want'
+    ],
+    correct: 'Facilitate discussion about sustainable pace based on actual velocity data',
+    explanation: 'The PM helps protect sustainable pace by facilitating honest discussion. They don\'t override the team, but they do ensure decisions are informed by data. Overcommitment hurts quality and morale.'
+  },
+  {
+    scenario: 'A key stakeholder is upset that their requested feature keeps getting pushed to later sprints. They demand the PM ensure it\'s in the next sprint.',
+    question: 'What should the PM do?',
+    options: [
+      'Explain prioritization is the PO\'s decision and facilitate a meeting with the PO',
+      'Promise to add it to the next sprint to satisfy the stakeholder',
+      'Tell the stakeholder their feature isn\'t important enough',
+      'Add it to the sprint backlog without telling the PO'
+    ],
+    correct: 'Explain prioritization is the PO\'s decision and facilitate a meeting with the PO',
+    explanation: 'The PO owns prioritization. The PM should help stakeholders understand the process and facilitate communication - not bypass the PO or make promises about scope.'
+  },
+  {
+    scenario: 'Two team members are having a conflict about the technical approach for a user story. The disagreement is affecting team morale.',
+    question: 'What should the PM do?',
+    options: [
+      'Facilitate a discussion to help them reach consensus as a team',
+      'Make the technical decision to end the conflict',
+      'Assign them to different stories so they don\'t have to work together',
+      'Escalate to their functional manager for resolution'
+    ],
+    correct: 'Facilitate a discussion to help them reach consensus as a team',
+    explanation: 'The PM as servant leader facilitates conflict resolution without making decisions for the team. The team should own technical decisions. Separating people or escalating undermines team health.'
+  },
+  {
+    scenario: 'Senior leadership wants to add three more people to the agile team to speed up delivery of a critical project.',
+    question: 'What should the PM communicate?',
+    options: [
+      'Adding people may slow the team initially; consider other options first',
+      'Great idea - more people means faster delivery',
+      'Refuse - agile teams can\'t change size',
+      'Accept the people but keep them on separate tasks'
+    ],
+    correct: 'Adding people may slow the team initially; consider other options first',
+    explanation: 'Brooks\'s Law: adding people to a late project makes it later. The PM should educate leadership about onboarding overhead, team dynamics, and agile team size (3-9 ideal). Explore alternatives first.'
+  },
+  {
+    scenario: 'The team\'s Definition of Done doesn\'t include code review, and quality issues are emerging. The PM notices this gap.',
+    question: 'What should the PM do?',
+    options: [
+      'Raise the observation in the Retrospective for the team to discuss',
+      'Update the Definition of Done to require code review',
+      'Assign code review tasks to senior developers',
+      'Report the quality issues to management'
+    ],
+    correct: 'Raise the observation in the Retrospective for the team to discuss',
+    explanation: 'The team owns their Definition of Done and processes. The PM should raise observations in the appropriate forum (Retrospective) and let the team decide how to improve - not dictate changes.'
+  }
+];
+
+let currentQ = 0;
+
+// ========== UTILITY FUNCTIONS ==========
+
+function shuffle(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+// ========== MODE 1: CEREMONY ORDER ==========
+
+function orderMode() {
+  const shuffled = shuffle(CEREMONIES);
+  
+  let html = '<div class="hint"><b>Ceremony Order</b><br>Drag the ceremonies into the correct order during a typical sprint (from first to last).</div>';
+  
+  html += '<div class="drags" id="ceremonyBank">';
+  shuffled.forEach(c => {
+    html += `<div class="drag" draggable="true" data-id="${c.id}" data-order="${c.order}">${c.name}</div>`;
+  });
+  html += '</div>';
+  
+  html += '<div style="text-align:center;margin:16px 0;font-weight:600;color:var(--accent)">↓ Drag ceremonies into order below ↓</div>';
+  
+  html += '<div class="order-drops">';
+  for (let i = 1; i <= 5; i++) {
+    html += `<div class="order-drop" data-slot="${i}"><div class="order-label">${getOrdinal(i)}</div></div>`;
+  }
+  html += '</div>';
+  
+  html += '<div class="row" style="justify-content:center;margin-top:16px"><button onclick="checkOrder()">Check Order</button><button onclick="orderMode()">Reset</button></div>';
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = '';
+  
+  setupDragDrop();
+}
+
+function getOrdinal(n) {
+  const ordinals = ['', 'First', 'Second', 'Third', 'Fourth', 'Fifth'];
+  return ordinals[n];
+}
+
+function setupDragDrop() {
+  const drags = document.querySelectorAll('.drag');
+  const drops = document.querySelectorAll('.order-drop, .drop');
+  const bank = document.getElementById('ceremonyBank') || document.querySelector('.drags');
+  
+  drags.forEach(drag => {
+    drag.addEventListener('dragstart', e => {
+      drag.classList.add('dragging');
+      e.dataTransfer.setData('text/plain', drag.dataset.id || drag.textContent);
+    });
+    
+    drag.addEventListener('dragend', () => {
+      drag.classList.remove('dragging');
+      document.querySelectorAll('.drag-over').forEach(d => d.classList.remove('drag-over'));
+    });
+  });
+  
+  drops.forEach(drop => {
+    drop.addEventListener('dragover', e => {
+      e.preventDefault();
+      drop.classList.add('drag-over');
+    });
+    
+    drop.addEventListener('dragleave', () => {
+      drop.classList.remove('drag-over');
+    });
+    
+    drop.addEventListener('drop', e => {
+      e.preventDefault();
+      drop.classList.remove('drag-over');
+      const dragging = document.querySelector('.dragging');
+      if (dragging) {
+        // If drop already has a drag, move it back to bank
+        const existing = drop.querySelector('.drag');
+        if (existing && bank) {
+          bank.appendChild(existing);
+        }
+        drop.appendChild(dragging);
+      }
+    });
+  });
+  
+  // Allow dropping back to bank
+  if (bank) {
+    bank.addEventListener('dragover', e => e.preventDefault());
+    bank.addEventListener('drop', e => {
+      e.preventDefault();
+      const dragging = document.querySelector('.dragging');
+      if (dragging) bank.appendChild(dragging);
+    });
+  }
+}
+
+function checkOrder() {
+  const slots = document.querySelectorAll('.order-drop');
+  let correct = 0;
+  let results = [];
+  
+  slots.forEach((slot, index) => {
+    const drag = slot.querySelector('.drag');
+    const expectedOrder = index + 1;
+    
+    if (drag && parseInt(drag.dataset.order) === expectedOrder) {
+      correct++;
+      slot.style.borderColor = '#28a745';
+      slot.style.background = '#d4edda';
+    } else if (drag) {
+      slot.style.borderColor = '#dc3545';
+      slot.style.background = '#f8d7da';
+      const correctName = CEREMONIES.find(c => c.order === expectedOrder).name;
+      results.push(`${getOrdinal(expectedOrder)}: ${correctName}`);
+    } else {
+      slot.style.borderColor = '#dc3545';
+      slot.style.background = '#f8d7da';
+      const correctName = CEREMONIES.find(c => c.order === expectedOrder).name;
+      results.push(`${getOrdinal(expectedOrder)}: ${correctName}`);
+    }
+  });
+  
+  if (correct === 5) {
+    byId('fb').innerHTML = '<div class="good">✓ Perfect! All ceremonies in correct order!</div>';
+  } else {
+    byId('fb').innerHTML = `<div class="bad">✗ ${correct}/5 correct.<br><b>Correct order:</b> ${results.join(' → ')}</div>`;
+  }
+}
+
+// ========== MODE 2: MATCHING ==========
+
+function matchingMode() {
+  const shuffledCeremonies = shuffle(CEREMONY_DESCRIPTIONS.map(c => c.ceremony));
+  const shuffledDescriptions = shuffle(CEREMONY_DESCRIPTIONS.map(c => ({ ceremony: c.ceremony, description: c.description })));
+  
+  let html = '<div class="hint"><b>Match Ceremonies to Descriptions</b><br>Drag each ceremony to its correct description.</div>';
+  
+  html += '<div class="drags" id="matchBank">';
+  shuffledCeremonies.forEach(c => {
+    html += `<div class="drag" draggable="true" data-ceremony="${c}">${c}</div>`;
+  });
+  html += '</div>';
+  
+  html += '<div class="drops" style="margin-top:16px">';
+  shuffledDescriptions.forEach((d, i) => {
+    html += `<div class="drop" data-answer="${d.ceremony}">
+      <div class="drop-label" style="font-size:.8rem;color:var(--muted);text-align:left">${d.description}</div>
+    </div>`;
+  });
+  html += '</div>';
+  
+  html += '<div class="row" style="justify-content:center;margin-top:16px"><button onclick="checkMatching()">Check Matches</button><button onclick="matchingMode()">Reset</button></div>';
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = '';
+  
+  setupMatchDragDrop();
+}
+
+function setupMatchDragDrop() {
+  const drags = document.querySelectorAll('.drag');
+  const drops = document.querySelectorAll('.drop');
+  const bank = document.getElementById('matchBank');
+  
+  drags.forEach(drag => {
+    drag.addEventListener('dragstart', e => {
+      drag.classList.add('dragging');
+      e.dataTransfer.setData('text/plain', drag.dataset.ceremony);
+    });
+    
+    drag.addEventListener('dragend', () => {
+      drag.classList.remove('dragging');
+      document.querySelectorAll('.drag-over').forEach(d => d.classList.remove('drag-over'));
+    });
+  });
+  
+  drops.forEach(drop => {
+    drop.addEventListener('dragover', e => {
+      e.preventDefault();
+      drop.classList.add('drag-over');
+    });
+    
+    drop.addEventListener('dragleave', () => {
+      drop.classList.remove('drag-over');
+    });
+    
+    drop.addEventListener('drop', e => {
+      e.preventDefault();
+      drop.classList.remove('drag-over');
+      const dragging = document.querySelector('.dragging');
+      if (dragging) {
+        const existing = drop.querySelector('.drag');
+        if (existing && bank) {
+          bank.appendChild(existing);
+        }
+        drop.appendChild(dragging);
+      }
+    });
+  });
+  
+  if (bank) {
+    bank.addEventListener('dragover', e => e.preventDefault());
+    bank.addEventListener('drop', e => {
+      e.preventDefault();
+      const dragging = document.querySelector('.dragging');
+      if (dragging) bank.appendChild(dragging);
+    });
+  }
+}
+
+function checkMatching() {
+  const drops = document.querySelectorAll('.drop');
+  let correct = 0;
+  
+  drops.forEach(drop => {
+    const drag = drop.querySelector('.drag');
+    const answer = drop.dataset.answer;
+    
+    if (drag && drag.dataset.ceremony === answer) {
+      correct++;
+      drop.style.borderColor = '#28a745';
+      drop.style.background = '#d4edda';
+    } else if (drag) {
+      drop.style.borderColor = '#dc3545';
+      drop.style.background = '#f8d7da';
+    }
+  });
+  
+  if (correct === 5) {
+    byId('fb').innerHTML = '<div class="good">✓ Perfect! All matches correct!</div>';
+  } else {
+    byId('fb').innerHTML = `<div class="bad">✗ ${correct}/5 correct. Red boxes show incorrect matches.</div>`;
+  }
+}
+
+// ========== MODE 3: ATTENDEES (Critical!) ==========
+
+function attendeesMode() {
+  const q = ATTENDEE_QUESTIONS[currentQ % ATTENDEE_QUESTIONS.length];
+  
+  let html = `<div class="hint"><b>🎯 Who Attends This Ceremony?</b><br>This is a critical exam topic! Click each person to mark if they SHOULD attend (green) or SHOULD NOT attend (red).</div>`;
+  
+  html += `<div class="scenario-box"><b>${q.ceremony}</b><br>${q.question}</div>`;
+  
+  html += '<div class="attendee-grid">';
+  const shuffled = shuffle(q.attendees);
+  shuffled.forEach((a, i) => {
+    const roleClass = `role-${a.role}`;
+    html += `<div class="attendee" data-correct="${a.correct}" data-index="${i}" onclick="toggleAttendee(this)">
+      ${a.name}
+      <span class="role-badge ${roleClass}">${a.role.toUpperCase()}</span>
+    </div>`;
+  });
+  html += '</div>';
+  
+  html += '<div style="text-align:center;margin:12px 0;font-size:.85rem;color:var(--muted)">Click to toggle: <span style="color:#28a745">Green = Should Attend</span> | <span style="color:#dc3545">Red = Should NOT Attend</span></div>';
+  
+  html += `<div class="row" style="justify-content:center"><button onclick="checkAttendees()">Check Answers</button><button onclick="nextAttendees()">Next Ceremony</button></div>`;
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `Question ${(currentQ % ATTENDEE_QUESTIONS.length) + 1} of ${ATTENDEE_QUESTIONS.length}`;
+}
+
+function toggleAttendee(elem) {
+  if (elem.classList.contains('selected-yes')) {
+    elem.classList.remove('selected-yes');
+    elem.classList.add('selected-no');
+  } else if (elem.classList.contains('selected-no')) {
+    elem.classList.remove('selected-no');
+  } else {
+    elem.classList.add('selected-yes');
+  }
+}
+
+function checkAttendees() {
+  const q = ATTENDEE_QUESTIONS[currentQ % ATTENDEE_QUESTIONS.length];
+  const attendees = document.querySelectorAll('.attendee');
+  let correct = 0;
+  
+  attendees.forEach(a => {
+    const shouldAttend = a.dataset.correct === 'true';
+    const markedYes = a.classList.contains('selected-yes');
+    const markedNo = a.classList.contains('selected-no');
+    
+    // Must have made a selection
+    if (!markedYes && !markedNo) {
+      a.style.outline = '2px solid orange';
+      return;
+    }
+    
+    if ((shouldAttend && markedYes) || (!shouldAttend && markedNo)) {
+      correct++;
+      a.style.outline = '3px solid #28a745';
+    } else {
+      a.style.outline = '3px solid #dc3545';
+    }
+  });
+  
+  const total = q.attendees.length;
+  
+  if (correct === total) {
+    byId('fb').innerHTML = `<div class="good">✓ Perfect!<br><small>${q.explanation}</small></div>`;
+  } else {
+    byId('fb').innerHTML = `<div class="bad">✗ ${correct}/${total} correct<br><small>${q.explanation}</small></div>`;
+  }
+}
+
+function nextAttendees() {
+  currentQ++;
+  attendeesMode();
+}
+
+// ========== MODE 4: ANTIPATTERNS ==========
+
+function antipatternsMode() {
+  const q = ANTIPATTERN_QUESTIONS[currentQ % ANTIPATTERN_QUESTIONS.length];
+  
+  let html = '<div class="hint"><b>Identify the Antipattern</b><br>Read the scenario and identify what\'s going wrong. These are common exam traps!</div>';
+  
+  html += `<div class="scenario-box">${q.scenario}</div>`;
+  html += `<div style="font-weight:600;margin:12px 0">${q.question}</div>`;
+  
+  const shuffled = shuffle(q.options);
+  html += '<div>';
+  shuffled.forEach(opt => {
+    html += `<div class="opt" onclick="selectOpt(this)" data-answer="${opt}">${opt}</div>`;
+  });
+  html += '</div>';
+  
+  html += `<div class="row" style="justify-content:center"><button onclick="checkAntipattern()">Check Answer</button><button onclick="nextAntipattern()">Next</button></div>`;
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `Question ${(currentQ % ANTIPATTERN_QUESTIONS.length) + 1} of ${ANTIPATTERN_QUESTIONS.length}`;
+}
+
+function selectOpt(elem) {
+  document.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+  elem.classList.add('selected');
+}
+
+function checkAntipattern() {
+  const q = ANTIPATTERN_QUESTIONS[currentQ % ANTIPATTERN_QUESTIONS.length];
+  const selected = document.querySelector('.opt.selected');
+  
+  if (!selected) {
+    byId('fb').innerHTML = '<div class="warning">Please select an answer.</div>';
+    return;
+  }
+  
+  if (selected.dataset.answer === q.correct) {
+    byId('fb').innerHTML = `<div class="good">✓ Correct!<br><small>${q.explanation}</small></div>`;
+  } else {
+    byId('fb').innerHTML = `<div class="bad">✗ Correct answer: <b>${q.correct}</b><br><small>${q.explanation}</small></div>`;
+  }
+}
+
+function nextAntipattern() {
+  currentQ++;
+  antipatternsMode();
+}
+
+// ========== MODE 5: SCENARIOS ==========
+
+function scenariosMode() {
+  const q = SCENARIO_QUESTIONS[currentQ % SCENARIO_QUESTIONS.length];
+  
+  let html = '<div class="hint"><b>Scenario-Based Question</b><br>Read the scenario and identify which ceremony or concept applies.</div>';
+  
+  html += `<div class="scenario-box">${q.scenario}</div>`;
+  html += `<div style="font-weight:600;margin:12px 0">${q.question}</div>`;
+  
+  const shuffled = shuffle(q.options);
+  html += '<div>';
+  shuffled.forEach(opt => {
+    html += `<div class="opt" onclick="selectOpt(this)" data-answer="${opt}">${opt}</div>`;
+  });
+  html += '</div>';
+  
+  html += `<div class="row" style="justify-content:center"><button onclick="checkScenario()">Check Answer</button><button onclick="nextScenario()">Next</button></div>`;
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `Question ${(currentQ % SCENARIO_QUESTIONS.length) + 1} of ${SCENARIO_QUESTIONS.length}`;
+}
+
+function checkScenario() {
+  const q = SCENARIO_QUESTIONS[currentQ % SCENARIO_QUESTIONS.length];
+  const selected = document.querySelector('.opt.selected');
+  
+  if (!selected) {
+    byId('fb').innerHTML = '<div class="warning">Please select an answer.</div>';
+    return;
+  }
+  
+  if (selected.dataset.answer === q.correct) {
+    byId('fb').innerHTML = `<div class="good">✓ Correct!<br><small>${q.explanation}</small></div>`;
+  } else {
+    byId('fb').innerHTML = `<div class="bad">✗ Correct answer: <b>${q.correct}</b><br><small>${q.explanation}</small></div>`;
+  }
+}
+
+function nextScenario() {
+  currentQ++;
+  scenariosMode();
+}
+
+// ========== MODE 6: ARTIFACTS ==========
+
+function artifactsMode() {
+  const q = ARTIFACT_QUESTIONS[currentQ % ARTIFACT_QUESTIONS.length];
+  
+  let html = '<div class="hint"><b>Scrum Artifacts & Events</b><br>Test your knowledge of official Scrum framework components.</div>';
+  
+  html += `<div style="font-weight:600;margin:16px 0;font-size:1.1rem">${q.question}</div>`;
+  
+  const shuffled = shuffle(q.options);
+  html += '<div>';
+  shuffled.forEach(opt => {
+    html += `<div class="opt" onclick="selectOpt(this)" data-answer="${opt}">${opt}</div>`;
+  });
+  html += '</div>';
+  
+  html += `<div class="row" style="justify-content:center"><button onclick="checkArtifact()">Check Answer</button><button onclick="nextArtifact()">Next</button></div>`;
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `Question ${(currentQ % ARTIFACT_QUESTIONS.length) + 1} of ${ARTIFACT_QUESTIONS.length}`;
+}
+
+function checkArtifact() {
+  const q = ARTIFACT_QUESTIONS[currentQ % ARTIFACT_QUESTIONS.length];
+  const selected = document.querySelector('.opt.selected');
+  
+  if (!selected) {
+    byId('fb').innerHTML = '<div class="warning">Please select an answer.</div>';
+    return;
+  }
+  
+  if (selected.dataset.answer === q.correct) {
+    byId('fb').innerHTML = `<div class="good">✓ Correct!<br><small>${q.explanation}</small></div>`;
+  } else {
+    byId('fb').innerHTML = `<div class="bad">✗ Correct answer: <b>${q.correct}</b><br><small>${q.explanation}</small></div>`;
+  }
+}
+
+function nextArtifact() {
+  currentQ++;
+  artifactsMode();
+}
+
+// ========== MODE 7: PM ROLE ==========
+
+function pmRoleMode() {
+  const q = PM_ROLE_QUESTIONS[currentQ % PM_ROLE_QUESTIONS.length];
+  
+  let html = '<div class="hint"><b>🎯 PM Role in Agile - Exam Critical!</b><br>These questions test what a PM should do as a servant leader. The exam WILL test these behaviors!</div>';
+  
+  html += `<div class="scenario-box">${q.scenario}</div>`;
+  html += `<div style="font-weight:600;margin:12px 0">${q.question}</div>`;
+  
+  const shuffled = shuffle(q.options);
+  html += '<div>';
+  shuffled.forEach(opt => {
+    html += `<div class="opt" onclick="selectOpt(this)" data-answer="${opt}">${opt}</div>`;
+  });
+  html += '</div>';
+  
+  html += `<div class="row" style="justify-content:center"><button onclick="checkPMRole()">Check Answer</button><button onclick="nextPMRole()">Next</button></div>`;
+  html += '<div id="fb"></div>';
+  
+  byId('work').innerHTML = html;
+  byId('batchCounter').textContent = `Question ${(currentQ % PM_ROLE_QUESTIONS.length) + 1} of ${PM_ROLE_QUESTIONS.length}`;
+}
+
+function checkPMRole() {
+  const q = PM_ROLE_QUESTIONS[currentQ % PM_ROLE_QUESTIONS.length];
+  const selected = document.querySelector('.opt.selected');
+  
+  if (!selected) {
+    byId('fb').innerHTML = '<div class="warning">Please select an answer.</div>';
+    return;
+  }
+  
+  if (selected.dataset.answer === q.correct) {
+    byId('fb').innerHTML = `<div class="good">✓ Correct!<br><small>${q.explanation}</small></div>`;
+  } else {
+    byId('fb').innerHTML = `<div class="bad">✗ Correct answer: <b>${q.correct}</b><br><small>${q.explanation}</small></div>`;
+  }
+}
+
+function nextPMRole() {
+  currentQ++;
+  pmRoleMode();
+}
+
+// ========== INITIALIZATION ==========
+
+byId('start').onclick = () => {
+  currentQ = 0;
+  const mode = byId('mode').value;
+  
+  if (mode === 'order') orderMode();
+  else if (mode === 'matching') matchingMode();
+  else if (mode === 'attendees') attendeesMode();
+  else if (mode === 'antipatterns') antipatternsMode();
+  else if (mode === 'scenarios') scenariosMode();
+  else if (mode === 'artifacts') artifactsMode();
+  else if (mode === 'pmrole') pmRoleMode();
+};
+
+byId('darkToggle').onchange = e => {
+  document.body.classList.toggle('dark', e.target.checked);
+};
+
+// Start with order mode
+orderMode();
+</script>
+</body>
+</html>
